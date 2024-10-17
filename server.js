@@ -1,14 +1,14 @@
 const express = require("express");
 const app = express();
-const jwt = require("jsonwebtoken");
-const config = require("./config");
 const auth = require("./routes/auth");
+const post = require("./routes/post");
 
 const PORT = 3000; //ローカルで使用するPORTを指定
 
 
 app.use(express.json());//サーバーでJsonを使えるように設定
 app.use("/auth", auth);//authを指定してWebAPIを構築できるようにする
+app.use("/post", post);
 
 
 app.listen(PORT, () => {

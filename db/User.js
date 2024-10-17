@@ -1,7 +1,6 @@
 const User = [
     {
-        email: "aaaa@gmail.com",
-        password: "1234567890",
+
     },
 ];
 
