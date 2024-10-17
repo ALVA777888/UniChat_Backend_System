@@ -8,4 +8,7 @@ module.exports = {
             expiresIn: "1d"
         },
     },
+    database: {
+        passkey: process.env.DBPASSKEY,
+    },
 };
