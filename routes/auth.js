@@ -3,12 +3,7 @@ const config = require("../config");
 const router = require("express").Router();
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
-const { User } = require("../db/User");//疑似データベース！削除または無効化するように！
-
-router.get("/", (req, res) => {
-    res.send("Hello Auth");
-});
-
+const UserAccount = require("../db/User");
 
 
 //ユーザー新規登録API
@@ -16,7 +11,7 @@ router.post("/singup", body("email").isEmail(), body("password").isLength({min: 
     {
         const email = req.body.email;
         const password = req.body.password;
-        // const Username = req.body.username;
+        const username = req.body.username;
 
         //バリデーションのリザルト
         const errors = validationResult(req);
@@ -29,7 +24,7 @@ router.post("/singup", body("email").isEmail(), body("password").isLength({min: 
         }
 
         //DBにユーザが居るかのチェック
-        const user = User.find((user) => user.email === email);
+        const user = await UserAccount.findOne({ mail: email });
         if(user){
             return res.status(400).json(
             {
@@ -39,16 +34,22 @@ router.post("/singup", body("email").isEmail(), body("password").isLength({min: 
 
         //パスワードの暗号化
         let hashedPassword = await bcrypt.hash(password, 10);
-        // console.log(hashedPassword);
 
-        //データベースに保存※テスト設計
-        User.push(
+        //データベースに保存
+        const UserID = new UserAccount({
+            username: username,
+            mail: email,
+            password: hashedPassword,
+        });
+        try{
+            await UserID.save();
+        } catch {
+            res.status(500).json(
             {
-                email,
-                password: hashedPassword,
-            }
-        );
-
+                message: errors,
+            });
+        }
+ 
         //クライアントへJWTの発行
         const token = await jwt.sign(
             {
@@ -73,7 +74,7 @@ router.post("/login", async (req, res) => {
     const {email, password} = req.body;
 
     //ユーザーの登録状況参照
-    const user = User.find((user) => user.email === email);
+    const user = await UserAccount.findOne({ mail: email });
     if(!user){
         return res.status(400).json([
             {
@@ -109,28 +110,10 @@ router.post("/login", async (req, res) => {
 
 
 
-
-
-// function auth(req, res, next){
-//     try{
-//         const token = req.headers.token;
-//         if (!token) {
-//             throw new Error("トークンがありません");
-//         }
-//         const decoded = jwt.verify(token, config.jwt.secret);
-//         console.log(decoded);
-//         next();
-//     } catch (err){
-//         console.log("Ye");
-//         return res.send(401).json({
-//             msg: "認証できません"
-//         });
-//     }
-// }
-
 //FakeDBにあるユーザーの確認
-router.get("/allUser", (req, res) => {
-    return res.json(User);
+router.get("/allUser", async(req, res) => {
+    const Users = await UserAccount.find({})
+    res.send(Users);
 });
 
 module.exports = router;
