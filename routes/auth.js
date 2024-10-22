@@ -3,7 +3,7 @@ const config = require("../config");
 const router = require("express").Router();
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
-const UserAccount = require("../db/User");
+const {UserAccount} = require("../db/User");
 
 
 //ユーザー新規登録API
@@ -110,7 +110,7 @@ router.post("/login", async (req, res) => {
 
 
 
-//FakeDBにあるユーザーの確認
+//DBにあるユーザーの確認※削除予定
 router.get("/allUser", async(req, res) => {
     const Users = await UserAccount.find({})
     res.send(Users);
