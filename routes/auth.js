@@ -5,13 +5,16 @@ const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const {UserAccount} = require("../db/User");
 
+//ここではログイン関係を管理しているスクリプトになる
 
 //ユーザー新規登録API
 router.post("/singup", body("email").isEmail(), body("password").isLength({min: 6 }), async(req, res) => 
     {
+        //Postされたbodyの内容を各変数に入れている
         const email = req.body.email;
         const password = req.body.password;
         const username = req.body.username;
+        const statuscode = "0000"; 
 
         //バリデーションのリザルト
         const errors = validationResult(req);
@@ -40,6 +43,7 @@ router.post("/singup", body("email").isEmail(), body("password").isLength({min: 
             username: username,
             mail: email,
             password: hashedPassword,
+            statuscode: statuscode
         });
         try{
             await UserID.save();

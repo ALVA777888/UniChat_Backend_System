@@ -3,6 +3,9 @@ const JWT = require("jsonwebtoken");
 const checkJWT = require("../middleware/checkJWT");
 const {UserPost} = require("../db/User");
 
+//Post(ツイート)を実装する予定の場所、現在とりあえずユーザーの識別関係なく投稿機能を実装
+
+//JWTによる認証をテスト
 router.post("/private", checkJWT,(req, res) =>{
     return res.json({
         message: "ログイン成功",
@@ -10,6 +13,8 @@ router.post("/private", checkJWT,(req, res) =>{
     });
 });
 
+
+//Post機能、有効なJWTを保持している人のみ投稿できる。現状はユーザーを正確に識別する機能を実装しているわけではない
 router.post("/post", checkJWT,async(req,res) =>{
    
     const Userid = req.body.userid;
@@ -19,6 +24,7 @@ router.post("/post", checkJWT,async(req,res) =>{
         userid: Userid,
         posttext: Posttext,
         posttime: Date.now(),
+        statuscode: "0000"
     });
     try{
         await post.save();
@@ -31,7 +37,6 @@ router.post("/post", checkJWT,async(req,res) =>{
 
     return res.json({
         userid: Userid,
-        posttext: Posttext,
         message: "投稿完了",
     });
 

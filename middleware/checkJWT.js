@@ -1,6 +1,8 @@
 const JWT = require("jsonwebtoken");
 const config = require("../config");
 
+//JWTが有効かを確認する場所
+
 module.exports = async (req, res, next) => {
     // JWTを持ってるか確認
     const token = req.header("x-auth-token");

@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+//User情報関係のDBのフォーマットを形成している場所
+
 const UserAccountSchema = new mongoose.Schema({
     username:{//ちょっとよくわからないけどとりあえずつけてるやつ
         type: String,
@@ -21,6 +23,11 @@ const UserAccountSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    statuscode:{//ユーザーの追加情報を保存する。例えばBANであったりなど
+        type: String,//TODO:文字列じゃなくて数列に変更したい
+        required: true,
+        trim: true,
+    }
 
 });
 
@@ -41,10 +48,15 @@ const UserPostSchema = new mongoose.Schema({
         trim: false,
     },
     posttime:{
-        type: String,
+        type: Date,
         required: true,
         trim: false,
     },
+    statuscode:{//投稿内容の追加情報を保存する。例えば、制限が設けられた投稿など
+        type: String,
+        required: true,
+        trim: true,
+    }
 });
 
 

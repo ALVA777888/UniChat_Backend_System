@@ -5,8 +5,10 @@ const post = require("./routes/post");
 const config = require("./config");
 const mongoose = require("mongoose");
 
+//大元のサーバー部分
+
 const PORT = 3000; //ローカルで使用するPORTを指定
-mongoose.connect("mongodb://localhost:27017/UniChat").then(() => console.log("Database connected")).catch((err) => console.log(err));
+mongoose.connect(config.database.url).then(() => console.log("Database connected")).catch((err) => console.log(err));//DB接続
 
 app.use(express.json());//サーバーでJsonを使えるように設定
 app.use("/auth", auth);//authを指定してWebAPIを構築できるようにする
