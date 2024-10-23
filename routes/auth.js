@@ -28,6 +28,7 @@ router.post("/singup", body("email").isEmail(), body("password").isLength({min: 
 
         //DBにユーザが居るかのチェック
         const user = await UserAccount.findOne({ mail: email });
+        const user = await UserAccount.findOne({ mail: email });
         if(user){
             return res.status(400).json(
             {
@@ -78,6 +79,7 @@ router.post("/login", async (req, res) => {
     const {email, password} = req.body;
 
     //ユーザーの登録状況参照
+    const user = await UserAccount.findOne({ mail: email });
     const user = await UserAccount.findOne({ mail: email });
     if(!user){
         return res.status(400).json([
