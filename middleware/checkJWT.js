@@ -1,5 +1,6 @@
 const JWT = require("jsonwebtoken");
 const config = require("../config");
+const {UserAccount} = require("../db/User");
 
 //JWTが有効かを確認する場所
 
@@ -18,7 +19,13 @@ module.exports = async (req, res, next) => {
         // JWTトークンを検証
         let user = await JWT.verify(token, config.jwt.secret);
         console.log(user);
-        req.user = user.email;
+        const user_email = await UserAccount.findOne({ mail: user.email });
+        if(!user_email){
+            return res.status(400).json(
+                {
+                    message: "アカウントが削除されているか、無効なトークンです",
+                });
+        }
         next();
         
     } catch (err) {
