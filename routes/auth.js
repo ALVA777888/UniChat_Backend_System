@@ -1,9 +1,12 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config");
 const router = require("express").Router();
-const { body, validationResult } = require("express-validator");
+const checkJWT = require("../middleware/checkJWT");
+const destroyJWT = require("../middleware/destroyJWT");
+const { body, validationResult, check } = require("express-validator");
 const bcrypt = require("bcrypt");
-const {UserAccount} = require("../db/User");
+const {UserAccount,InvalidToken} = require("../db/User");
+const { Collection } = require("mongoose");
 
 //ここではログイン関係を管理しているスクリプトになる
 
@@ -13,7 +16,7 @@ router.post("/signup", body("email").isEmail(), body("password").isLength({min: 
         //Postされたbodyの内容を各変数に入れている
         const email = req.body.email;
         const password = req.body.password;
-        const username = req.body.username;
+        const userid = req.body.userid;
         const statuscode = "0000"; 
 
         //バリデーションのリザルト
@@ -26,21 +29,30 @@ router.post("/signup", body("email").isEmail(), body("password").isLength({min: 
             });
         }
 
-        //DBにユーザが居るかのチェック
-        const user = await UserAccount.findOne({ mail: email });
-        if(user){
+        //DBに同じユーザが居るかのチェック
+        const user_email = await UserAccount.findOne({ mail: email });
+        if(user_email){
             return res.status(400).json(
             {
-                message: "すでにそのユーザは存在しています",
+                message: "すでにそのメールアドレスは存在しています",
             });
         }
+
+        //DBに同じユーザネームが居るかチェック
+        const user_id = await UserAccount.findOne({ userid: userid });
+        if(user_id){
+            return res.status(400).json(
+            {
+                message: "すでにそのユーザネームは存在しています",
+            });
+        }  
 
         //パスワードの暗号化
         let hashedPassword = await bcrypt.hash(password, 10);
 
         //データベースに保存
         const UserID = new UserAccount({
-            username: username,
+            userid: userid,
             mail: email,
             password: hashedPassword,
             statuscode: statuscode
@@ -58,6 +70,7 @@ router.post("/signup", body("email").isEmail(), body("password").isLength({min: 
         const token = await jwt.sign(
             {
                 email,
+                userid,
             },
             config.jwt.secret,
             config.jwt.options,
@@ -77,7 +90,7 @@ router.post("/signup", body("email").isEmail(), body("password").isLength({min: 
 router.post("/login", async (req, res) => {
     const {email, password} = req.body;
 
-    //ユーザーの登録状況参照
+    //ユーザーのメールアドレス登録状況参照
     const user = await UserAccount.findOne({ mail: email });
     if(!user){
         return res.status(400).json([
@@ -96,13 +109,13 @@ router.post("/login", async (req, res) => {
             },
         ]);
     }
-    
+
+
+    const { userid } = user;  // これはDBからメールアドレスをもとにUserIDを取得している
     const token = await jwt.sign(
-        {
-            email,
-        },
+        { email, userid },
         config.jwt.secret,
-        config.jwt.options,
+        config.jwt.options
     );
     
     //トークンを返す、これは、将来的にはcookieにあるトークンと照合する
@@ -112,6 +125,13 @@ router.post("/login", async (req, res) => {
     });
 })
 
+
+//ログアウトAPI
+router.post("/logout", checkJWT,destroyJWT,async(req,res) => {
+    return res.json({
+        message: "ログアウト完了。現在のトークンを破棄しました",
+    });
+});
 
 
 //DBにあるユーザーの確認※削除予定

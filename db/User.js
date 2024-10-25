@@ -3,14 +3,10 @@ const mongoose = require("mongoose");
 //User情報関係のDBのフォーマットを形成している場所
 
 const UserAccountSchema = new mongoose.Schema({
-    username:{//ちょっとよくわからないけどとりあえずつけてるやつ
-        type: String,
-        required: true,
-        trim: true,
-    },
+
     userid:{//アカウントのID
         type: String,
-        required: false,
+        required: true,
         trim: true,
     },
     mail:{//学校用のメールアドレス
@@ -59,8 +55,22 @@ const UserPostSchema = new mongoose.Schema({
     }
 });
 
+const InvalidTokenSchema = new mongoose.Schema({
+    mail:{
+        type: String,
+        required: true,
+        trim: false,
+    },
+    invalid_tokens:{
+        type: [String],
+        required: true,
+        trim: false,
+    },
+
+})
+
 
 const UserAccount = mongoose.model("UserAccount", UserAccountSchema);
 const UserPost = mongoose.model("UserPost", UserPostSchema);
-
-module.exports = { UserAccount,UserPost };
+const InvalidToken = mongoose.model("InvalidToken", InvalidTokenSchema);
+module.exports = { UserAccount,UserPost,InvalidToken};

@@ -17,7 +17,7 @@ router.post("/private", checkJWT,(req, res) =>{
 //Post機能、有効なJWTを保持している人のみ投稿できる。現状はユーザーを正確に識別する機能を実装しているわけではない
 router.post("/post", checkJWT,async(req,res) =>{
    
-    const Userid = req.body.userid;
+    const Userid = req.user.userid;
     const Posttext = req.body.posttext;
 
     const post = new UserPost({
@@ -29,9 +29,9 @@ router.post("/post", checkJWT,async(req,res) =>{
     try{
         await post.save();
     } catch {
-        res.status(500).json(
+        return res.status(500).json(
         {
-            message: errors,
+            message: "なんかのエラー",
         });
     }
 
@@ -39,6 +39,7 @@ router.post("/post", checkJWT,async(req,res) =>{
         userid: Userid,
         message: "投稿完了",
     });
+
 
 });
 
