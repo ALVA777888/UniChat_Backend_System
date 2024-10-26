@@ -29,6 +29,12 @@ router.post("/post", checkJWT,async(req,res) =>{
     try{
         await post.save();
     } catch {
+        console.log(Posttext);
+        if(Posttext == ""){
+            return res.status(400).json({
+                message: "テキストボックスが空白です",
+            });
+        }
         return res.status(500).json(
         {
             message: "なんかのエラー",
@@ -43,9 +49,9 @@ router.post("/post", checkJWT,async(req,res) =>{
 
 });
 
-router.get("/getpost", checkJWT,(req,res) =>{
-
-
+router.get("/getpost", checkJWT,async(req,res) =>{
+    const Posts = await UserPost.find({})
+    res.send(Posts);
 });
 
 //全員のポストを確認

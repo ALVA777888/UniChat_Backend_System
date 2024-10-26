@@ -8,7 +8,7 @@ module.exports = async (req, res, next) => {
     // JWTを持ってるか確認
     const token = req.header("x-auth-token");
     if (!token) {
-        return res.status(400).json([{ message: "権限なし" }]);
+        return res.status(400).json({ message: "権限なし" });
     }
 
     try {
@@ -29,7 +29,7 @@ module.exports = async (req, res, next) => {
             const tokenExists = invalidToken.invalid_tokens.includes(token);
             if (tokenExists) {
                 return res.status(400).json({
-                    message: "ログアウトされました。再度ログインしてください",
+                    message: "最近ログアウトされました。再度ログインしてください",
                 });
             }
         }
@@ -39,6 +39,6 @@ module.exports = async (req, res, next) => {
         next();
 
     } catch (err) {
-        return res.status(400).json([{ message: "トークンが一致しません。トークンの期限が切れている可能性があります。再度ログインしてください" }]);
+        return res.status(400).json({ message: "トークンの期限が切れました。再度ログインしてください" });
     }
 };

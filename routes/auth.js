@@ -79,7 +79,7 @@ router.post("/signup", body("email").isEmail(), body("password").isLength({min: 
         //トークンを返す、これは、将来的にはcookieにあるトークンと照合する
         return res.json({
             token: token,
-            message: "アカウント作成完了",
+            message: "アカウント作成完了"
         });
 
     }
@@ -87,27 +87,38 @@ router.post("/signup", body("email").isEmail(), body("password").isLength({min: 
 
 
 //ログインAPI
-router.post("/login", async (req, res) => {
-    const {email, password} = req.body;
+router.post("/login", body("email").isEmail(), body("password").isLength({min: 6 }), async (req, res) => {
+    
+    
+    //バリデーションのリザルト
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        return res.status(400).json(
+        {   
+            errors: errors.array(),
+            message: "パスワードまたは、メールアアドレスの要件を満たしていません",
+        });
+    }
 
+    const {email, password} = req.body;
     //ユーザーのメールアドレス登録状況参照
     const user = await UserAccount.findOne({ mail: email });
     if(!user){
-        return res.status(400).json([
+        return res.status(400).json(
             {
                 message: "そのユーザーは登録されていません",
-            },
-        ]);
+            }
+        );
     }
 
     //パスワードの複合、参照
     const isMatch = await bcrypt.compare(password, user.password);
     if(!isMatch){
-        return res.status(400).json([
+        return res.status(400).json(
             {
                 message: "パスワードが違います",
             },
-        ]);
+        );
     }
 
 
@@ -118,13 +129,20 @@ router.post("/login", async (req, res) => {
         config.jwt.options
     );
     
-    //トークンを返す、これは、将来的にはcookieにあるトークンと照合する
+    //トークンを返す
     return res.json({
         token: token,
         message: "ログイン成功",
     });
 })
 
+//オートログインAPI
+router.post("/autologin",checkJWT, async (req,res) =>{
+    //トークンによる自動的なログイン　TODO:いずれはloginと統合したい
+    return res.json({
+        message: "オートログイン完了",
+    });
+})
 
 //ログアウトAPI
 router.post("/logout", checkJWT,destroyJWT,async(req,res) => {
