@@ -49,12 +49,13 @@ router.post("/post", checkJWT,async(req,res) =>{
 
 });
 
+//ポストを取得するAPI
 router.get("/getpost", checkJWT,async(req,res) =>{
     const Posts = await UserPost.find({})
     res.send(Posts);
 });
 
-//全員のポストを確認
+//全員のポストを確認、JWT認証なしで見れるデバック用、いずれ削除される
 router.get("/allPost", async(req, res) => {
     const Posts = await UserPost.find({})
     res.send(Posts);
