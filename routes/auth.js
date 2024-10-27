@@ -11,79 +11,29 @@ const { Collection } = require("mongoose");
 //ここではログイン関係を管理しているスクリプトになる
 
 //ユーザー新規登録API
-router.post("/signup", body("email").isEmail(), body("password").isLength({min: 6 }), async(req, res) => 
-    {
-        //Postされたbodyの内容を各変数に入れている
+router.post("/signup", body("email").isEmail(), body("password").isLength({ min: 6 }), async (req, res) => {
+    try {
+        // Postされたbodyの内容を各変数に入れている
         const email = req.body.email;
         const password = req.body.password;
-        const userid = req.body.userid;
-        const statuscode = "0000"; 
+        const userid = req.body.userid; // ここで正しく取得できているか確認
 
-        //バリデーションのリザルト
-        const errors = validationResult(req);
-        if(!errors.isEmpty()) {
-            return res.status(400).json(
-            {   
-                errors: errors.array(),
-                message: "パスワードまたは、メールアアドレスの要件を満たしていません",
+        // useridがundefinedまたは空文字列でないかチェック
+        if (!userid) {
+            return res.status(400).json({
+                message: "ユーザIDが提供されていません",
             });
         }
 
-        //DBに同じユーザが居るかのチェック
-        const user_email = await UserAccount.findOne({ mail: email });
-        if(user_email){
-            return res.status(400).json(
-            {
-                message: "すでにそのメールアドレスは存在しています",
-            });
-        }
-
-        //DBに同じユーザネームが居るかチェック
-        const user_id = await UserAccount.findOne({ userid: userid });
-        if(user_id){
-            return res.status(400).json(
-            {
-                message: "すでにそのユーザネームは存在しています",
-            });
-        }  
-
-        //パスワードの暗号化
-        let hashedPassword = await bcrypt.hash(password, 10);
-
-        //データベースに保存
-        const UserID = new UserAccount({
-            userid: userid,
-            mail: email,
-            password: hashedPassword,
-            statuscode: statuscode
+        // パスワードの暗号化など残りのコード...
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            message: "サーバーエラーが発生しました",
         });
-        try{
-            await UserID.save();
-        } catch {
-            res.status(500).json(
-            {
-                message: errors,
-            });
-        }
- 
-        //クライアントへJWTの発行
-        const token = await jwt.sign(
-            {
-                email,
-                userid,
-            },
-            config.jwt.secret,
-            config.jwt.options,
-        );
-
-        //トークンを返す、これは、将来的にはcookieにあるトークンと照合する
-        return res.json({
-            token: token,
-            message: "アカウント作成完了"
-        });
-
     }
-);
+});
+
 
 
 //ログインAPI

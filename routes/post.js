@@ -28,7 +28,7 @@ router.post("/post", checkJWT,async(req,res) =>{
     });
     try{
         await post.save();
-    } catch {
+    } catch (error) {
         console.log(Posttext);
         if(Posttext == ""){
             return res.status(400).json({
