@@ -3,7 +3,7 @@ const express = require("express");
 const checkJWT = require("../middleware/checkJWT");
 const { UserPost } = require("../db/User");
 
-//home画面のTLを取得(認証必要)
+//home画面のTLを取得(認証必要,ログインしたuserのpostのみ閲覧)
 router.get("/", checkJWT, async (req, res) => {
     try {
         const userId = req.user.userid; //JWTからuseridを取得
@@ -24,6 +24,17 @@ router.get("/recent", async (req, res) => {
         const recentPosts = await UserPost.find().sort({ posttime: -1 }).limit(10);
 
         return res.json(recentPosts);
+    } catch (error) {
+        console.error("Error recent posts:", error);
+        return res.status(500).json({ message: "最新投稿の取得時にエラーが発生しました。"});
+    }
+});
+
+//全post閲覧
+router.get("/allpost", checkJWT,async(req,res) =>{
+    try{
+    const Posts = await UserPost.find().sort({ posttime: -1 });
+    res.send(Posts);
     } catch (error) {
         console.error("Error recent posts:", error);
         return res.status(500).json({ message: "最新投稿の取得時にエラーが発生しました。"});
