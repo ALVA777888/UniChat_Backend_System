@@ -37,7 +37,7 @@ router.post("/post", checkJWT,async(req,res) =>{
         }
         return res.status(500).json(
         {
-            message: "なんかのエラー",
+            message: "サーバー側で何かしらのエラーが発生しました",
         });
     }
 
@@ -51,8 +51,16 @@ router.post("/post", checkJWT,async(req,res) =>{
 
 //ポストを取得するAPI
 router.get("/getpost", checkJWT,async(req,res) =>{
-    const Posts = await UserPost.find({})
-    res.send(Posts);
+    try{
+        const Posts = await UserPost.find({})
+        res.send(Posts);
+    } catch(err) {
+        return res.status(500).json(
+            {
+                message: "ポストの取得に失敗しました",
+            });
+    }
+
 });
 
 //全員のポストを確認、JWT認証なしで見れるデバック用、いずれ削除される

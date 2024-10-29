@@ -32,6 +32,6 @@ module.exports = async (req, res, next) => {
         next();
     } catch (errors) {
         console.log(errors);
-        return res.status(500).json([{ message: "エラー.すでにトークンが破棄されている可能性があります" }]);
+        return res.status(500).json([{ message: "エラー。すでにトークンが破棄されている可能性があります" }]);
     }
 };
