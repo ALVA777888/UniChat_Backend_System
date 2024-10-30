@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { DirectMessage } = require("../models/directmessage");
 
 //User情報関係のDBのフォーマットを形成している場所
 
@@ -23,7 +24,8 @@ const UserAccountSchema = new mongoose.Schema({
         type: String,//TODO:文字列じゃなくて数列に変更したい
         required: true,
         trim: true,
-    }
+    },
+    groupId: [String],
 
 });
 

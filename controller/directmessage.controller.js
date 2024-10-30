@@ -1,5 +1,8 @@
+const { UserAccount } = require("../db/User");
 const { DirectMessage } = require("../models/directmessage");
 const { v4: uuidv4 } = require('uuid');
+require("dotenv").config();
+
 
 //グループを作成
 const addgroup = async(req,res) => {
@@ -8,25 +11,33 @@ const addgroup = async(req,res) => {
         const groupname = req.body.groupname;
         const members = req.body.members;
         const groupid = uuidv4();
+        const ID = process.env.DMDBID;
 
-        let DB = await DirectMessage.findOne({userId : userid});
+        const user = await UserAccount.findOne({userid : userid});
+        let DB = await DirectMessage.findOne({ID:ID});
+        
 
-        if(!DB){ //DB上にすでに同じアカウントで存在しているかを確認
+        if(!DB){
             const createDB = new DirectMessage({
-                userId: userid,
+                ID: ID,
             });
             await createDB.save();
             DB = createDB;
         }
+        
 
-        DB.groups.push({
+        const new_group = {
             groupId: groupid,
             groupname: groupname,
             members: [userid,...members],
             messages: []
-        });
-        await DB.save();
+        };
 
+        DB.groups.push(new_group);
+        await DB.save();
+        user.groupId.push(groupid);
+        await user.save();
+        
         res.json({
             message: "グループチャットが作成されました",
         })
@@ -42,15 +53,40 @@ const addgroup = async(req,res) => {
 //グループを取得
 const getgroups = async(req,res) => {
     try{
+        const getgroupsName = [];
         const userid = req.user.userid;
-        const DB = await DirectMessage.findOne({userId : userid});
-        if(DB){
-            return res.json(DB);
-        } else {
-            return res.status(400).json({
-                message: "グループはまだありません",
-            })
+        const user = await UserAccount.findOne({userid : userid})
+        const user_groupIds = user ? user.groupId : [];
+        
+
+        for(const id of user_groupIds){
+            const directMessageUser = await DirectMessage.findOne({ "groups.groupId": id });
+
+            if(directMessageUser){
+                const group = directMessageUser.groups.find(group => group.groupId === id);
+                if(user){
+                    if(group){
+                        getgroupsName.push(group.groupname);
+                    }
+    
+                }
+            }
+
+
         }
+
+        return res.json(getgroupsName);
+
+        // let DB = await DirectMessage.findOne({ID:ID});
+
+
+        // if(DB){
+        //     return res.json(DB);
+        // } else {
+        //     return res.status(400).json({
+        //         message: "グループはまだありません",
+        //     })
+        // }
 
     } catch(err) {
         console.log(err);
@@ -101,7 +137,6 @@ const sendmessage = async(req,res) =>{
 
 //メッセージを取得
 const getmessages = async(req,res) =>{
-    console.log("fed");
     try{
         const userid = req.user.userid;
         const groupId = req.params.groupId;
