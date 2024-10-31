@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 
 const directmessageSchema = new mongoose.Schema(
     {
-        userId: String,
+        ID:String,
         groups:[  
             {            
                 groupId: String,
