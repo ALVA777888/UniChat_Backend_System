@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { DirectMessage } = require("../models/directmessage");
+const { DirectMessage } = require("./directmessage");
 
 //User情報関係のDBのフォーマットを形成している場所
 
@@ -25,9 +25,15 @@ const UserAccountSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
-    groupId: [String],
+    groups:[
+        {
+            groupId: String,
+            isApproved: Boolean,
+        }
+    ]
+    
 
-});
+},{ timestamps: true });
 
 const UserPostSchema = new mongoose.Schema({
     // postid:{
