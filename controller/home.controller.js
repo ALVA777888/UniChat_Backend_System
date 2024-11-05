@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const checkJWT = require("../middleware/checkJWT");
-const { UserPost } = require("../db/User");
+const { UserPost } = require("../models/user");
 
 //home画面のTLを取得(認証必要)
 router.get("/", checkJWT, async (req, res) => {

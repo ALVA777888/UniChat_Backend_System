@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { DirectMessage } = require("./directmessage");
 
 //User情報関係のDBのフォーマットを形成している場所
 
@@ -23,9 +24,16 @@ const UserAccountSchema = new mongoose.Schema({
         type: String,//TODO:文字列じゃなくて数列に変更したい
         required: true,
         trim: true,
-    }
+    },
+    groups:[
+        {
+            groupId: String,
+            isApproved: Boolean,
+        }
+    ]
+    
 
-});
+},{ timestamps: true });
 
 const UserPostSchema = new mongoose.Schema({
     // postid:{

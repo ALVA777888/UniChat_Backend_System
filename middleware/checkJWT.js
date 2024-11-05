@@ -1,6 +1,6 @@
 const JWT = require("jsonwebtoken");
 const config = require("../config");
-const { UserAccount, InvalidToken } = require("../db/User");
+const { UserAccount, InvalidToken } = require("../models/user");
 
 // JWTが有効かを確認
 
