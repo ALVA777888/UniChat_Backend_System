@@ -55,6 +55,10 @@ const getposts = async(req,res) =>{
 
 };
 
+const reposts = async(req,res) =>{
+    
+};
+
 
 
 module.exports = {post,getposts};

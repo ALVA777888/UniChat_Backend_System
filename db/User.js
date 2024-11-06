@@ -15,7 +15,7 @@ const UserAccountSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
-    password:{//見りゃわかんだろパスワード
+    password:{
         type: String,
         required: true,
         trim: true,
@@ -42,7 +42,6 @@ const UserPostSchema = new mongoose.Schema({
     },
     posttext:{
         type: String,
-        required: true,
         trim: false,
     },
     posttime:{
@@ -50,7 +49,24 @@ const UserPostSchema = new mongoose.Schema({
         required: true,
         trim: false,
     },
-    statuscode:{//投稿内容の追加情報を保存する。例えば、制限が設けられた投稿など
+    originalPostId: { //リポスト元ID
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserPost",
+        default: null,
+    },
+    repostCount: {
+        type: Number,
+        default: 0,
+    },
+    reposts: [{ //配列[リポストの]
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserPost",
+    }],
+    likes: [{ //配列[いいねをしたユーザーIDの]
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserAccount",
+    }],
+    statuscode: {//投稿内容の追加情報を保存する。例えば、制限が設けられた投稿など
         type: String,
         required: true,
         trim: true,

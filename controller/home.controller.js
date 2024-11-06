@@ -1,9 +1,11 @@
 const router = require("express").Router();
+const express = require("express");
 const checkJWT = require("../middleware/checkJWT");
 const { UserPost } = require("../db/User");
 
-//home画面のTLを取得(認証必要)
-router.get("/", checkJWT, async (req, res) => {
+
+//ログインした対象userのpostのみ閲覧
+export const userPost = async (req, res) => {
     try {
         const userId = req.user.userid; //JWTからuseridを取得
         //特定のpostを取得、日時で降順にソート
@@ -14,10 +16,23 @@ router.get("/", checkJWT, async (req, res) => {
         console.error("Error home timeline", error);
         return res.status(500).json({ message: "TimeLineの取得中にエラーが発生しました。"});
     }
-});
+};
 
-//最新投稿を取得(デバッグ、user向け)
-router.get("/recent", async (req, res) => {
+//全post閲覧（認証必要）
+export const allPost = async (req, res) => {
+    try {
+        const userId = req.user.userid;
+
+        const posts = await UserPost.find().sort({ posttime: -1 });
+        return res.json(Posts);
+     } catch (error) {
+        console.error("Error home timeline", error);
+        return res.status(500).json({ message: "TimeLineの取得中にエラーが発生しました。"});
+     }
+    };
+
+//最新投稿を取得(デバッグ)
+export const recent = async (req, res) => {
     try {
         //最新10件取得、降順ソート
         const recentPosts = await UserPost.find().sort({ posttime: -1 }).limit(10);
@@ -27,6 +42,6 @@ router.get("/recent", async (req, res) => {
         console.error("Error recent posts:", error);
         return res.status(500).json({ message: "最新投稿の取得時にエラーが発生しました。"});
     }
-});
+};
 
-module.exports = router;
+module.exports = {userPost,allPost,recent};
