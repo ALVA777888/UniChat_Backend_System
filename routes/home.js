@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const checkJWT = require("../middleware/checkJWT");
-const { userpost, recent, allpost } = require("../home.controller");
+const { userPost, allPost, recent } = require("../controller/home.controller");
 
 router.get("/userpost",checkJWT,userPost);
 router.get("/recent",recent);

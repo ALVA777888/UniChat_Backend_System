@@ -1,9 +1,9 @@
 const express = require("express");
 const app = express();
 const auth = require("./routes/auth");
-const post = require("./controller/post.controller");
+const post = require("./routes/post");
 const config = require("./config");
-const home = require("./controller/home.controller");
+const home = require("./routes/home");
 const dm = require("./routes/directmessage");
 
 const debug = require("./routes/debug")

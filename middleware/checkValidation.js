@@ -1,7 +1,9 @@
-const { body, validationResult } = require("express-validator");
+const { body } = require("express-validator");
 const { validateAlphanumeric } = require("../utils/utils");
 
-const checkValidation = [
+
+// バリデーションミドルウェアを定義
+module.exports = signupValidation = [
     body("email").isEmail().withMessage("有効なメールアドレスを入力してください"),
     body("password").isLength({ min: 6 }).withMessage("パスワードは6文字以上でなければなりません"),
     body("userid").custom(value => {
@@ -12,11 +14,12 @@ const checkValidation = [
     }),
     (req, res, next) => {
         const errors = validationResult(req);
+        console.log(errors.array().map(error => error.msg));
         if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
+            return res.status(400).json({ message: errors.array().map(error => error.msg).join(',\n')});
         }
         next();
     }
 ];
 
-module.exports = checkValidation;
+
