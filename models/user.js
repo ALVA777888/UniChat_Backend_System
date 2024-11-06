@@ -60,10 +60,6 @@ const UserPostSchema = new mongoose.Schema({
         ref: "UserPost",
         default: null,
     },
-    repostCount: {
-        type: Number,
-        default: 0,
-    },
     reposts: [{ //配列[リポストの]
         type: mongoose.Schema.Types.ObjectId,
         ref: "UserPost",
