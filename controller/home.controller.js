@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const express = require("express");
 const checkJWT = require("../middleware/checkJWT");
-const { UserPost } = require("../db/User");
+const { UserPost } = require("../models/user");
 
 
 //ログインした対象userのpostのみ閲覧

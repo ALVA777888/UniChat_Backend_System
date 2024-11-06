@@ -1,6 +1,4 @@
-const {UserPost} = require("../db/User");const jwt = require("jsonwebtoken");
-
-
+const {UserPost} = require("../models/user");
 
 //Post(ツイート)を実装する予定の場所、現在とりあえずユーザーの識別関係なく投稿機能を実装
 
