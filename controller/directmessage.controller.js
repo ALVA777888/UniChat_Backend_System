@@ -10,7 +10,7 @@ const findOrCreateDirectMessageDB = async() => {
     let DB = await DirectMessage.findOne({ID:DMDBID});
     if(!DB){
         const createDB = new DirectMessage({
-            ID: ID,
+            ID: DMDBID,
         });
         await createDB.save();
         DB = createDB;
