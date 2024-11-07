@@ -18,6 +18,7 @@ mongoose.connect(config.database.url)
 app.use(express.json());//サーバーでJsonを使えるように設定
 app.use("/auth", auth);//authを指定してWebAPIを構築できるようにする
 app.use("/home", home);
+app.use("/post", post);
 app.use("/dm", dm);
 
 app.use("/debug", debug);

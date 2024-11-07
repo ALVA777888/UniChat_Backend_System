@@ -3,10 +3,24 @@ const { DirectMessage } = require("../models/directmessage");
 const { v4: uuidv4 } = require('uuid');
 require("dotenv").config();
 
+const DMDBID = process.env.DMDBID;
 
+const findOrCreateDirectMessageDB = async() => {
+    
+    let DB = await DirectMessage.findOne({ID:DMDBID});
+    if(!DB){
+        const createDB = new DirectMessage({
+            ID: ID,
+        });
+        await createDB.save();
+        DB = createDB;
+    };
+    return DB;
+}
 
 //グループを作成
 const creategroup = async (req,res) => {
+
     try{
         const userid = req.user.userid;
         const groupname = req.body.groupname;
@@ -16,20 +30,15 @@ const creategroup = async (req,res) => {
 
         members = [...new Set(members)];//同じメンバーIDがある場合は消す
 
-        const ID = process.env.DMDBID;
-        let DB = await DirectMessage.findOne({ID:ID});
+        
+        let DB = await findOrCreateDirectMessageDB();
         //仮でつけてるID、スキーマを何かしらの形で分けたいなと思っている
         
                 
         //これもスキーマをとりあえず一つにするための仮設コード
-        if(!DB){
-            const createDB = new DirectMessage({
-                ID: ID,
-            });
-            await createDB.save();
-            DB = createDB;
-        };
 
+
+        //修正する箇所
         DB.groups.push({
             groupId: groupid,
             groupname: groupname,
@@ -37,12 +46,16 @@ const creategroup = async (req,res) => {
             messages: []
         });
         await DB.save();
+        //修正する箇所
+
       
         if(members.length != 0){
             const err_users = await invite(members, groupid, userid);
             if(err_users.length != 0){
                 return res.status(400).json({
-                    message: err_users
+                    message: err_users.message,
+                    err_users: err_users.err_users
+
                 })
             }
         };
@@ -106,7 +119,7 @@ const invite = async(members, groupid, userid) => {
             }
 
             if(userid == id){//招待したユーザの中に自分がいたら
-                return { error: "自分を招待することはできません", err_users: [id] };
+                return { message: "自分を招待することはできません", err_users: [id] };
             }
            
 
@@ -114,7 +127,7 @@ const invite = async(members, groupid, userid) => {
             const group = groups.groups.find(g => g.groupId === groupid);
             const IsMember = group.members.includes(id);
             if(IsMember){
-                return { error: "すでに招待済みのユーザーが存在します", err_users: [id] };
+                return { message: "すでに招待済みのユーザーが存在します", err_users: [id] };
             }  
 
          
@@ -123,7 +136,7 @@ const invite = async(members, groupid, userid) => {
         //エラーユーザーが一人でもいたら
         if(err_users.length != 0){ 
             return { 
-                error: "招待したユーザーが見つかりませんでした",
+                message: "招待したユーザーが見つかりませんでした",
                 err_users 
             };
         }
@@ -148,7 +161,7 @@ const invite = async(members, groupid, userid) => {
 
     } catch(err) {
         console.log(err);
-        return { error: "招待中にエラーが発生しました" };
+        return { message: "招待中にエラーが発生しました" };
     }
 }
 
