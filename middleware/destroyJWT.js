@@ -1,6 +1,6 @@
 const JWT = require("jsonwebtoken");
 const config = require("../config");
-const { InvalidToken } = require("../db/User");
+const { InvalidToken } = require("../models/user");
 
 // JWTを破棄
 

@@ -1,4 +1,4 @@
-const {UserAccount,UserPost} = require("../db/User");
+const {UserAccount,UserPost} = require("../models/user");
 
 
 //全員のユーザーを確認

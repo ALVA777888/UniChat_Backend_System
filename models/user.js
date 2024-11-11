@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { DirectMessage } = require("../models/directmessage");
+const { DirectMessage } = require("./directmessage");
 
 //User情報関係のDBのフォーマットを形成している場所
 

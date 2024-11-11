@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config");
 const bcrypt = require("bcrypt");
-const {UserAccount} = require("../db/User");
+const {UserAccount} = require("../models/user");
 const { validateAlphanumeric } = require("../utils/utils")
 
 
