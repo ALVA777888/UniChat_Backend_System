@@ -1,9 +1,9 @@
 const router = require("express").Router();
 const checkJWT = require("../middleware/checkJWT");
-const { userpost, recent, allpost } = require("../home.controller");
+const { userPost, recent, allPost } = require("../home.controller");
 
 router.get("/userpost",checkJWT,userPost);
+router.get("/allpost",checkJWT,allPost);
 router.get("/recent",recent);
-router.get("/allpost",checkJWT,allPost)
 
 module.exports = router;

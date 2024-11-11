@@ -1,11 +1,8 @@
-const router = require("express").Router();
-const express = require("express");
-const checkJWT = require("../middleware/checkJWT");
 const { UserPost } = require("../db/User");
 
 
 //ログインした対象userのpostのみ閲覧
-export const userPost = async (req, res) => {
+const userPost = async (req, res) => {
     try {
         const userId = req.user.userid; //JWTからuseridを取得
         //特定のpostを取得、日時で降順にソート
@@ -19,10 +16,8 @@ export const userPost = async (req, res) => {
 };
 
 //全post閲覧（認証必要）
-export const allPost = async (req, res) => {
+const allPost = async (req, res) => {
     try {
-        const userId = req.user.userid;
-
         const posts = await UserPost.find().sort({ posttime: -1 });
         return res.json(Posts);
      } catch (error) {
@@ -32,7 +27,7 @@ export const allPost = async (req, res) => {
     };
 
 //最新投稿を取得(デバッグ)
-export const recent = async (req, res) => {
+const recent = async (req, res) => {
     try {
         //最新10件取得、降順ソート
         const recentPosts = await UserPost.find().sort({ posttime: -1 }).limit(10);

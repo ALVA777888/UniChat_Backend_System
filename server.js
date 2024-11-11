@@ -6,6 +6,11 @@ const config = require("./config");
 const home = require("./controller/home.controller");
 const dm = require("./routes/directmessage");
 
+const follow = require('./routes/follow');
+const followers = require('./routes/followers.routes');
+const followings = require('./routes/followings.routes');
+
+
 const debug = require("./routes/debug")
 
 const mongoose = require("mongoose");
@@ -19,6 +24,10 @@ app.use(express.json());//サーバーでJsonを使えるように設定
 app.use("/auth", auth);//authを指定してWebAPIを構築できるようにする
 app.use("/home", home);
 app.use("/dm", dm);
+
+app.use('/api/users', follow);
+app.use('/api/users', followers);
+app.use('/api/users', followings);
 
 app.use("/debug", debug);
 

@@ -25,8 +25,15 @@ const UserAccountSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    followers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserAccount",
+    }],
+    following: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserAccount",
+    }],
     groupId: [String],
-
 });
 
 const UserPostSchema = new mongoose.Schema({
