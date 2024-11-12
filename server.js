@@ -26,8 +26,8 @@ app.use("/home", home);
 app.use("/dm", dm);
 
 app.use('/follow', follow);
-app.use('/api/users', followers);
-app.use('/api/users', followings);
+app.use('/followers', followers);
+app.use('/followings', followings);
 
 app.use("/debug", debug);
 
