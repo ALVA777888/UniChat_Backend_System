@@ -1,9 +1,9 @@
-const Follow = require('./Follow');
-const UserAccount = require('./User');
+const UserAccount = require('../../models/user');
 
 const followUser = async (req, res) => {
     try{
-        const userId = req.user.id;
+        const userId = req.user.userid;
+        console.log(userId);
         const targetUserId = req.params.userId;
 
         if (userId === targetUserId) {

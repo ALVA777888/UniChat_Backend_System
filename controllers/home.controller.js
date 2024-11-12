@@ -1,4 +1,4 @@
-const { UserPost } = require("../db/User");
+const { UserPost } = require("../models/user");
 
 
 //ログインした対象userのpostのみ閲覧

@@ -2,7 +2,7 @@ const router = require("express").Router();
 const checkJWT = require("../middleware/checkJWT");
 const destroyJWT = require("../middleware/destroyJWT");
 const checkValidation = require("../middleware/checkValidation");
-const { signup, login, auto_login, logout} = require("../controller/auth.controller");
+const { signup, login, auto_login, logout} = require("../controllers/auth.controller");
 
 
 

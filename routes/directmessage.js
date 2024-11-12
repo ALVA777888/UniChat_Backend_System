@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { creategroup, getgroups, getmessages, sendmessage, invite_user, getmembers } = require('../controller/directmessage.controller'); 
+const { creategroup, getgroups, getmessages, sendmessage, invite_user, getmembers } = require('../controllers/directmessage.controller'); 
 const checkJWT = require('../middleware/checkJWT');
 const checkMember = require("../middleware/checkMember");
 

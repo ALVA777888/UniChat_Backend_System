@@ -1,8 +1,8 @@
-const UserAccount = require('./User');
+const UserAccount = require('../../models/user');
 
 const unfollowUser = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user.userid;
         const targetUserId = req.param.userId;
 
         const user = await UserAccount.findById(userId);

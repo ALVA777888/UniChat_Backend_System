@@ -1,14 +1,14 @@
 const express = require("express");
 const app = express();
 const auth = require("./routes/auth");
-const post = require("./controller/post.controller");
+const post = require("./routes/post");
 const config = require("./config");
-const home = require("./controller/home.controller");
+const home = require("./routes/home");
 const dm = require("./routes/directmessage");
 
 const follow = require('./routes/follow');
-const followers = require('./routes/followers.routes');
-const followings = require('./routes/followings.routes');
+const followers = require('./routes/followers');
+const followings = require('./routes/followings');
 
 
 const debug = require("./routes/debug")
@@ -25,7 +25,7 @@ app.use("/auth", auth);//authを指定してWebAPIを構築できるようにす
 app.use("/home", home);
 app.use("/dm", dm);
 
-app.use('/api/users', follow);
+app.use('/follow', follow);
 app.use('/api/users', followers);
 app.use('/api/users', followings);
 
