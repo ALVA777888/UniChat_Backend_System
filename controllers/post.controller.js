@@ -5,51 +5,54 @@ const {UserPost} = require("../models/user");
 
 
 //Post機能、有効なJWTを保持している人のみ投稿できる。現状はユーザーを正確に識別する機能を実装しているわけではない
-const post = async(req,res) =>{
+const createPost = async(req,res) =>{
    
     const Userid = req.user.userid;
     const Posttext = req.body.posttext;
-    const originalPostId = req.body.originalPostId || null;
 
-    try{
-        //初手リポストなのか判定
-        if (originalPostId) {
-            const originalPost = await UserPost.findById(originalPostId);
-            if (!originalPost) {
-                return res.status(404).json({ message: "元の投稿が見つかりません" });
-            }
-            
-            const repost = new UserPost({
-                userid: Userid,
-                originalPostId: originalPostId,
-                posttext: Posttext || null,
-                posttime: Date.now(),
-                statuscode: "repost"
-            });
-            
-            originalPost.reposts.push(repost._id);
-            await originalPost.save();
-            await repost.save();
+    try {
+        const newPost = new UserPost({
+            userid: Userid,
+            posttext: Posttext,
+            posttime: Date.now(),
+            statuscode: "0000"
+        });
 
-            return res.json({ userid: Userid, message: "リポスト完了", repost });
-        } else {
-            //通常投稿
-            const newPost = new UserPost({
-                userid: Userid,
-                posttext: Posttext,
-                posttime: Date.now(),
-                statuscode: "0000"
-            });
-
-            await newPost.save();
-
-            return res.json({ userid: Userid, message: "投稿完了", newPost });
-        }
+        await newPost.save();
+        return res.json({ userid: Userid, message: "投稿完了", newPost });
     } catch (error) {
         console.error(error);
         if (Posttext === "") {
             return res.status(400).json({ message: "テキストボックスが空白です" });
         }
+        return res.status(500).json({ message: "サーバー側で何かしらのエラーが発生しました" });
+    }
+};
+
+const repost = async (req, res) => {
+    const Userid = req.user.userid;
+    const originalPostId = req.params.postId; // パラメータから取得
+
+    try {
+        const originalPost = await UserPost.findById(originalPostId);
+        if (!originalPost) {
+            return res.status(404).json({ message: "元の投稿が見つかりません" });
+        }
+
+        const repost = new UserPost({
+            userid: Userid,
+            originalPostId: originalPostId,
+            posttime: Date.now(),
+            statuscode: "repost"
+        });
+
+        originalPost.reposts.push(repost._id);
+        await originalPost.save();
+        await repost.save();
+
+        return res.json({ userid: Userid, message: "リポスト完了", repost });
+    } catch (error) {
+        console.error(error);
         return res.status(500).json({ message: "サーバー側で何かしらのエラーが発生しました" });
     }
 };
@@ -95,4 +98,4 @@ const getRecent = async (req, res) => {
 
 
 
-module.exports = {post,getUserPost,getAllPost,getRecent};
+module.exports = {createPost,repost,getUserPost,getAllPost,getRecent};
