@@ -39,6 +39,19 @@ const repost = async (req, res) => {
             return res.status(404).json({ message: "元の投稿が見つかりません" });
         }
 
+        const existingRepost = await UserPost.findOne({
+            userid: Userid,
+            originalPostId: originalPostId
+        });
+
+        if (existingRepost) {
+            originalPost.reposts = originalPost.reposts.filter(id => id.toString() !== existingRepost._id.toString());
+            await originalPost.save();
+            await UserPost.deleteOne({ _id: existingRepost._id });
+
+            return res.json({ userid: Userid, message: "リポストを解除しました" });
+        }
+
         const repost = new UserPost({
             userid: Userid,
             originalPostId: originalPostId,
