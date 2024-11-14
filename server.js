@@ -5,7 +5,6 @@ const post = require("./routes/post");
 const config = require("./config");
 const home = require("./routes/home");
 const dm = require("./routes/directmessage");
-const accountManager = require("./routes/accountmanager");
 
 const debug = require("./routes/debug")
 
@@ -17,11 +16,11 @@ mongoose.connect(config.database.url)
 
     
 app.use(express.json());//サーバーでJsonを使えるように設定
-app.use("/auth", auth);//authを指定してWebAPIを構築できるようにする
+app.use("/auth", auth);
 app.use("/home", home);
 app.use("/post", post);
 app.use("/dm", dm);
-app.use("/account", accountManager);
+
 
 app.use("/debug", debug);
 

@@ -1,11 +1,19 @@
 const mongoose = require("mongoose");
-const { DirectMessage } = require("./directmessage");
 
 //User情報関係のDBのフォーマットを形成している場所
 
 const UserAccountSchema = new mongoose.Schema({
-
+    UniqueID:{//ユーザー一人に与えられる固有のID 
+        type: String,
+        required: true,
+        trim: true,
+    },
     userid:{//アカウントのID
+        type: String,
+        required: true,
+        trim: true,
+    },
+    username:{
         type: String,
         required: true,
         trim: true,
@@ -75,8 +83,9 @@ const UserPostSchema = new mongoose.Schema({
     }
 });
 
+//破棄されたトークンを保存するためのスキーマ
 const InvalidTokenSchema = new mongoose.Schema({
-    mail:{
+    UniqueID:{
         type: String,
         required: true,
         trim: false,

@@ -8,6 +8,7 @@ const { sendMessage, getMessages } = require('../controller/directMessage/messag
 
 
 
+
 router.post("/creategroup", checkJWT, createGroup);
 router.post("/:groupId/inviteuser", checkJWT, checkMember, invite_user)
 router.post("/:groupId", checkJWT, checkMember, sendMessage);

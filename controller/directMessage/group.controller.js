@@ -1,12 +1,13 @@
 const { UserAccount } = require("../../models/user");
 const { DirectMessage } = require("../../models/directmessage");
+const { getUserID, getUserMap } = require("../../utils/accountHelper");
 
 
 //グループを取得
 const getGroups = async (req, res) => {
     try {
         const getgroupsName = [];
-        const userid = req.user.userid;
+        const userid = await getUserID(req.UniqueID);
         const user = await UserAccount.findOne({ userid: userid });
 
         if (!user) {
@@ -46,40 +47,76 @@ const getGroups = async (req, res) => {
 };
 
 //メンバーを確認
-const getMembers = async(req,res) => {
+const fetchMembers = async (groupId) => {
     try{
-        const { groupId } = req.params;
         const NotApproval = [];
+        const members = [];
+        const retiredMembers = [];
 
         const groups = await DirectMessage.findOne({ "groups.groupId": groupId });
         const group = groups.groups.find(g => g.groupId === groupId);
         
-        for(const userid of group.members){
-            const user = await UserAccount.findOne({ userid: userid });
-            const Approved = user.groups.find(group => group.groupId === groupId); 
-            if(!Approved.isApproved){
-                NotApproval.push(userid)
+        for(const UniqueID of group.members){
+            const user = await UserAccount.findOne({ UniqueID });
+            if (!user) {
+                // ユーザーが存在しない場合は退会したユーザーとして扱う
+                retiredMembers.push(UniqueID);
+                continue;
             }
+            const Approved = user.groups.find(group => group.groupId === groupId); 
+            members.push(user.UniqueID);//メンバーのユーザーIDを格納
+            if(!Approved.isApproved){
+                NotApproval.push(user.UniqueID);//未加入メンバーのユーザーIDを格納
+            }
+        }
 
+        const usernames = await getUserMap(members);
+        const NotApproval_usernames = await getUserMap(NotApproval);
+        retiredMembers.forEach(id => {
+            usernames[id] = "退会したユーザー";
+        });
+
+        
+
+        const result = {
+            usernames,
+            NotApproval: NotApproval_usernames,
         }
         
-        return res.status(200).json({
-            message: "メンバー取得成功",
-            members: group.members,
-            NotApproval: NotApproval
-        })
+        return result;
+
     } catch(err) {
         console.log(err);
         return res.status(500).json({
-            message: "メンバーの取得に失敗しました"
+            message: "メンバー情報の取得に失敗しました"
+        })
+    }
+};
+
+//メンバーを確認,API
+const getMembers = async(req,res) => {
+    try{
+        const groupId = req.params.groupId;
+        const result = await fetchMembers(groupId);
+
+        return res.status(200).json({
+            message: "メンバー取得成功",
+            me: req.UniqueID,
+            members: result.usernames,
+            NotApproval: result.NotApproval,
+        })
+    }catch(err){
+        console.log(err);
+        return res.status(500).json({
+            message: "メンバー情報の取得に失敗しました"
         })
     }
 };
 
 //グループ参加に承諾
-const approval_permission = async(userid, groupId) => {
+const approval_permission = async(UniqueID, groupId) => {
     try{
-        const user = await UserAccount.findOne({ userid: userid });
+        const user = await UserAccount.findOne({ UniqueID });
         const userGroup = user.groups.find(group => group.groupId === groupId); 
               
         userGroup.isApproved = true;
@@ -92,4 +129,4 @@ const approval_permission = async(userid, groupId) => {
 
 }
 
-module.exports = { getGroups, getMembers, approval_permission };
+module.exports = { getGroups, getMembers, fetchMembers, approval_permission };

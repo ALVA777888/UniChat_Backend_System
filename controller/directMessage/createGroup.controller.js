@@ -4,6 +4,7 @@ const { validateMembers } = require("../../utils/validation");
 const { invite } = require("./invite.controller");
 
 const { v4: uuidv4 } = require('uuid');
+const { getUserID } = require("../../utils/accountHelper");
 require("dotenv").config();
 
 
@@ -27,11 +28,11 @@ const findOrCreateDirectMessageDB = async() => {
 const createGroup = async (req,res) => {
 
     try{
-        const userid = req.user.userid;
+        const UniqueID = req.UniqueID;
+        const userid = await getUserID(req.UniqueID);
         const groupname = req.body.groupname;
         const members = [...new Set(req.body.members)];//同じメンバーIDがある場合は消す
         const groupid = uuidv4();
-        
            
         //グループ名、jsonが空の場合
         if (!req.body || Object.keys(req.body).length === 0 || !groupname) {
@@ -40,18 +41,18 @@ const createGroup = async (req,res) => {
             });
         };
 
-        //メンバーが存在する場合
-        if(members.length != 0){
-            //招待するメンバーのバリデーションチェック
-            const result = await validateMembers(members, groupid, userid);
 
-            if(result.ok == false){
-                return res.status(400).json({
-                    message: result.message,
-                    err_users: result.err_users
-                });
-            };
+        //招待するメンバーのバリデーションチェック
+        const validation_result = await validateMembers(members, groupid, UniqueID);
+
+        if(validation_result.ok == false){
+            return res.status(400).json({
+                message: validation_result.message,
+                err_users: validation_result.err_users
+            });
         };
+
+        //ここでエラーキャッチするのは微妙、できればばりでーションチェックの中でやりたい
         
 
         //仮でつけてるID、スキーマを何かしらの形で分けたいなと思っている
@@ -61,7 +62,7 @@ const createGroup = async (req,res) => {
         DB.groups.push({
             groupId: groupid,
             groupname: groupname,
-            members: [userid],
+            members: [UniqueID],
             messages: []
         });
         await DB.save();

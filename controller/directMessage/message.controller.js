@@ -1,25 +1,25 @@
 const { UserAccount } = require("../../models/user");
 const { DirectMessage } = require("../../models/directmessage");
-const { approval_permission } = require("../../controller/directMessage/group.controller");
+const { approval_permission, fetchMembers } = require("../../controller/directMessage/group.controller");
 const { v4: uuidv4 } = require('uuid');
 
 
 //メッセージを送信
 const sendMessage = async(req,res) =>{
     try{
-        const userid = req.user.userid;
+        const UniqueID = req.UniqueID;
         const contents = req.body.contents;
         const isApproved = req.body.isApproved;
         const groupId = req.params.groupId;
         const ID = process.env.DMDBID;
 
 
-        const user = await UserAccount.findOne({ userid: userid });
+        const user = await UserAccount.findOne({ UniqueID });
         const userGroup = user.groups.find(group => group.groupId === groupId); 
 
         //招待を承諾する
         if(isApproved == "OK" && userGroup.isApproved == false){
-            const result = await approval_permission(userid, groupId);
+            const result = await approval_permission(UniqueID, groupId);
             return res.status(200).json({
                 result: result
             })
@@ -45,7 +45,7 @@ const sendMessage = async(req,res) =>{
         if(group){
             const newMessage = {
                 id: uuidv4(), 
-                sender: userid, 
+                sender: UniqueID, 
                 contents: contents, 
                 timeStamp: Date.now()
             };
@@ -62,7 +62,6 @@ const sendMessage = async(req,res) =>{
         })
     }
 };
-
 
 
 //メッセージを取得

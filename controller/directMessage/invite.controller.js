@@ -1,17 +1,19 @@
 const { UserAccount } = require("../../models/user");
 const { DirectMessage } = require("../../models/directmessage");
-const {validateMembers} = require("../../utils/validation");
+const { validateMembers } = require("../../utils/validation");
+
 
 //グループに招待(API)
 const invite_user = async(req, res) => {
     try{
         const { groupId } = req.params; 
-        const userid = req.user.userid;
-        let members = [...new Set(req.body.members)];;
-    
-        let result = await validateMembers(members, groupId, userid);//メンバーに対してバリデーションチェック
+        const UniqueID = req.UniqueID;
+        let members_UniqueID = req.body.members;
+        members_UniqueID = [...new Set(members_UniqueID)];//重複するユーザーIDを削除
+
+        let result = await validateMembers(members_UniqueID, groupId, UniqueID);//メンバーに対してバリデーションチェック
         if(result.ok){
-            result = await invite(members, groupId);//メンバーを招待
+            result = await invite(members_UniqueID, groupId);//メンバーを招待
         };
         
         //招待中にエラーがあったら
@@ -24,7 +26,7 @@ const invite_user = async(req, res) => {
     
         return res.status(200).json({
             message: "ユーザーを招待しました。承認してもらうと正式に参加されます。",
-            members
+            members_UniqueID
         })
 
     } catch(err) {    
@@ -36,12 +38,12 @@ const invite_user = async(req, res) => {
 };
 
 //グループに招待
-const invite = async(members, groupid) => {
+const invite = async(members_UniqueID, groupid) => {
     try{
         const groups = await DirectMessage.findOne({ "groups.groupId": groupid });
         const group = groups.groups.find(g => g.groupId === groupid);
-        for(const id of members){
-            const user = await UserAccount.findOne({userid : id});
+        for(const id of members_UniqueID){
+            const user = await UserAccount.findOne({UniqueID : id});
             //招待先のユーザー情報にグループを追加
             user.groups.push({
                 groupId: groupid,
