@@ -1,4 +1,5 @@
 const {UserPost} = require("../models/user");
+const mongoose = require('mongoose'); 
 
 //Post(ツイート)を実装する予定の場所、現在とりあえずユーザーの識別関係なく投稿機能を実装
 
@@ -7,19 +8,19 @@ const {UserPost} = require("../models/user");
 //Post機能、有効なJWTを保持している人のみ投稿できる。現状はユーザーを正確に識別する機能を実装しているわけではない
 const createPost = async(req,res) =>{
    
-    const Userid = req.user.userid;
+    const userId = req.user.userid;
     const Posttext = req.body.posttext;
 
     try {
         const newPost = new UserPost({
-            userid: Userid,
+            userid: userId,
             posttext: Posttext,
             posttime: Date.now(),
             statuscode: "0000"
         });
 
         await newPost.save();
-        return res.json({ userid: Userid, message: "投稿完了", newPost });
+        return res.json({ userid: userId, message: "投稿完了", newPost });
     } catch (error) {
         console.error(error);
         if (Posttext === "") {
@@ -30,7 +31,7 @@ const createPost = async(req,res) =>{
 };
 
 const repost = async (req, res) => {
-    const Userid = req.user.userid;
+    const userId = req.user.userid;
     const originalPostId = req.params.postId; // パラメータから取得
 
     try {
@@ -40,7 +41,7 @@ const repost = async (req, res) => {
         }
 
         const existingRepost = await UserPost.findOne({
-            userid: Userid,
+            userid: userId,
             originalPostId: originalPostId
         });
 
@@ -49,11 +50,11 @@ const repost = async (req, res) => {
             await originalPost.save();
             await UserPost.deleteOne({ _id: existingRepost._id });
 
-            return res.json({ userid: Userid, message: "リポストを解除しました" });
+            return res.json({ userid: userId, message: "リポストを解除しました" });
         }
 
         const repost = new UserPost({
-            userid: Userid,
+            userid: userId,
             originalPostId: originalPostId,
             posttime: Date.now(),
             statuscode: "repost"
@@ -63,12 +64,51 @@ const repost = async (req, res) => {
         await originalPost.save();
         await repost.save();
 
-        return res.json({ userid: Userid, message: "リポスト完了", repost });
+        return res.json({ userid: userId, message: "リポスト完了", repost });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "サーバー側で何かしらのエラーが発生しました" });
     }
 };
+
+const likePost = async (req, res) => {
+    const userId = req.user.userid;
+    const originalPostId = req.params.postId;
+
+    console.log(userId);
+    console.log(originalPostId);
+    
+
+    try {
+        const originalPost = await UserPost.findById(originalPostId);
+        if (!originalPost) {
+            return res.status(404).json({ message: "元の投稿が見つかりません" });
+        }
+
+        // console.log('originalPost.likes:', originalPost.likes);
+
+        const existingLike = originalPost.likes.includes(userId);
+
+        // console.log('existingLike:', existingLike);
+        
+        if (existingLike) {
+            // いいねを解除
+            originalPost.likes = originalPost.likes.filter(like => like !== userId);
+            await originalPost.save();
+
+            return res.json({ message: "いいねを解除しました" });
+        }
+
+        originalPost.likes.push(userId);
+        await originalPost.save();
+
+        return res.json({ message: "いいねしました" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "サーバー側で何かしらのエラーが発生しました" });
+    }
+};
+
 
 //ログインした対象userのpostのみ閲覧
 const getUserPost = async (req, res) => {
@@ -111,4 +151,4 @@ const getRecent = async (req, res) => {
 
 
 
-module.exports = {createPost,repost,getUserPost,getAllPost,getRecent};
+module.exports = {createPost,repost,likePost,getUserPost,getAllPost,getRecent};

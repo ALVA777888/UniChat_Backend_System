@@ -10,6 +10,12 @@ const UserAccountSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    UniqueID:{//ユーザー一人に与えられる固有のID 
+        type: String,
+        required: true,
+        ref: "UserAccount",
+        trim: true,
+    },
     mail:{//学校用のメールアドレス
         type: String,
         required: true,
@@ -33,7 +39,10 @@ const UserAccountSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "UserAccount",
     }],
-    groupId: [String],
+    groups:[{
+        groupId: String,
+        isApproved: Boolean,
+    }]
 });
 
 const UserPostSchema = new mongoose.Schema({
@@ -66,8 +75,9 @@ const UserPostSchema = new mongoose.Schema({
         ref: "UserPost",
     }],
     likes: [{ //配列[いいねをしたユーザーIDの]
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: "UserAccount",
+        default: [],
     }],
     statuscode: {//投稿内容の追加情報を保存する。例えば、制限が設けられた投稿など
         type: String,
