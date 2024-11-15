@@ -4,9 +4,11 @@ const auth = require("./routes/auth");
 const post = require("./routes/post");
 const config = require("./config");
 const dm = require("./routes/directmessage");
-const debug = require("./routes/debug")
+const debug = require("./routes/debug");
+const follow = require("./routes/follow");
 
 const mongoose = require("mongoose");
+const followUser = require("./controllers/follow/following.controller");
 
 const PORT = 3000; //ローカルで使用するPORTを指定
 mongoose.connect(config.database.url)
@@ -18,6 +20,8 @@ app.use(express.json());//サーバーでJsonを使えるように設定
 app.use("/auth", auth);//authを指定してWebAPIを構築できるようにする
 
 app.use("/post", post);
+
+app.use("/follow", follow);
 
 app.use("/debug", debug);
 

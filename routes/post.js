@@ -4,8 +4,8 @@ const { post, getUserPost, getAllPost, getRecent, createPost, repost, likePost }
 
 
 router.post("/createpost", checkJWT, createPost);
-router.post("/:postId/repost", checkJWT, repost);
-router.post("/:postId/likepost", checkJWT, likePost);
+router.post("/repost", checkJWT, repost);
+router.post("/likepost", checkJWT, likePost);
 
 router.get("/getuserpost",checkJWT,getUserPost);
 router.get("/getallpost",checkJWT,getAllPost);

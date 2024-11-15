@@ -5,15 +5,9 @@ const { DirectMessage } = require("./directmessage");
 
 const UserAccountSchema = new mongoose.Schema({
 
-    userid:{//アカウントのID
+    userid:{//アカウントのID todo:usernameに変更するべきでは？_idと混ざってうざい
         type: String,
         required: true,
-        trim: true,
-    },
-    UniqueID:{//ユーザー一人に与えられる固有のID 
-        type: String,
-        required: true,
-        ref: "UserAccount",
         trim: true,
     },
     mail:{//学校用のメールアドレス

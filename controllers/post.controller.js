@@ -32,10 +32,14 @@ const createPost = async(req,res) =>{
 };
 
 const repost = async (req, res) => {
-    const userId = req.user.userid;
-    const originalPostId = req.params.postId; // パラメータから取得
+    const { originalPostId, userId } = req.body;
 
     try {
+        const user = await UserAccount.findOne({ userid: userId });
+        if (!user) {
+            return res.status(404).json({ message: "ユーザーが見つかりません" });
+        }
+
         const originalPost = await UserPost.findById(originalPostId);
         if (!originalPost) {
             return res.status(404).json({ message: "元の投稿が見つかりません" });
@@ -74,15 +78,15 @@ const repost = async (req, res) => {
 
 const likePost = async (req, res) => {
     try {
-        //DBから取得してあげる
-        const userFromDB = await UserAccount.findOne({ userid: req.user.userid }).select('_id');
+        const { originalPostId, userId } = req.body;
+
+        const userFromDB = await UserAccount.findOne({ userid: userId }).select('_id');
         if (!userFromDB) {
             return res.status(404).json({ message: "ユーザーが見つかりません" });
         }
-        const userId = userFromDB._id;
-        const originalPostId = req.params.postId;
 
-        
+        const userIdFromDB = userFromDB._id;
+
         const originalPost = await UserPost.findById(originalPostId);
         if (!originalPost) {
             return res.status(404).json({ message: "元の投稿が見つかりません" });
@@ -90,15 +94,15 @@ const likePost = async (req, res) => {
 
         
         originalPost.likes = originalPost.likes.filter(like => like !== null);
-        const existingLike = originalPost.likes.find(like => like.equals(userId));
+        const existingLike = originalPost.likes.find(like => like.equals(userIdFromDB));
 
         if (existingLike) {
-            originalPost.likes = originalPost.likes.filter(like => !like.equals(userId));
+            originalPost.likes = originalPost.likes.filter(like => !like.equals(userIdFromDB));
             await originalPost.save();
             return res.json({ message: "いいねを解除しました" });
         }
 
-        originalPost.likes.push(userId);
+        originalPost.likes.push(userIdFromDB);
         await originalPost.save();
 
         return res.json({ message: "いいねしました" });
@@ -146,11 +150,6 @@ const likePost = async (req, res) => {
 //         return res.status(500).json({ message: "サーバー側で何かしらのエラーが発生しました" });
 //     }
 // };
-
-
-
-
-
 
 //ログインした対象userのpostのみ閲覧
 const getUserPost = async (req, res) => {
