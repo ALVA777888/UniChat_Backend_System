@@ -8,6 +8,11 @@ const config = require("./config");
 const home = require("./routes/home");
 const dm = require("./routes/directmessage");
 
+const follow = require('./routes/follow');
+const followers = require('./routes/followers');
+const followings = require('./routes/followings');
+
+
 const debug = require("./routes/debug")
 
 const server = http.createServer(app);
@@ -25,6 +30,10 @@ app.use("/auth", auth);
 app.use("/home", home);
 app.use("/post", post);
 app.use("/dm", dm);
+
+app.use('/follow', follow);
+app.use('/api/users', followers);
+app.use('/api/users', followings);
 
 
 app.use("/debug", debug);

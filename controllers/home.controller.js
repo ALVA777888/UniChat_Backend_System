@@ -1,6 +1,3 @@
-const router = require("express").Router();
-const express = require("express");
-const checkJWT = require("../middleware/checkJWT");
 const { UserPost } = require("../models/user");
 const { getUserID } = require("../utils/accountHelper");
 
@@ -22,8 +19,6 @@ const userPost = async (req, res) => {
 //全post閲覧（認証必要）
 const allPost = async (req, res) => {
     try {
-        const userId = req.user.userid;
-
         const posts = await UserPost.find().sort({ posttime: -1 });
         return res.json(Posts);
      } catch (error) {
