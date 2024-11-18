@@ -1,9 +1,10 @@
 const {UserPost} = require("../models/user");
+const { getUserID } = require("../utils/accountHelper");
 
 //Post機能、有効なJWTを保持している人のみ投稿できる。現状はユーザーを正確に識別する機能を実装しているわけではない
 const post = async(req,res) =>{
    
-    const Userid = req.user.userid;
+    const Userid = await getUserID(req.UniqueID);
     const Posttext = req.body.posttext;
 
     const post = new UserPost({

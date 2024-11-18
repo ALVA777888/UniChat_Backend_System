@@ -3,6 +3,7 @@ const config = require("../config");
 const bcrypt = require("bcrypt");
 const {UserAccount} = require("../models/user");
 const { validateAlphanumeric } = require("../utils/utils")
+const { v4: uuidv4 } = require('uuid');
 
 
 //ここではログイン関係を管理しているスクリプトになる
@@ -12,9 +13,11 @@ const signup = async(req, res) =>
     {
         try{
             //Postされたbodyの内容を各変数に入れている
+            const UniqueID = uuidv4();
             const email = req.body.email;
             const password = req.body.password;
             const userid = req.body.userid;
+            let username = req.body.username;
             const statuscode = "0000"; 
 
             //半角英数のバリデーションチェック
@@ -43,20 +46,24 @@ const signup = async(req, res) =>
                 });
             }  
 
+
+            
+
             //パスワードの暗号化
             let hashedPassword = await bcrypt.hash(password, 10);
-
             //データベースに保存
             const UserID = new UserAccount({
+                UniqueID,
                 userid: userid,
+                username: username = username || userid,//usernameが登録されていなかったらuseridにする
                 mail: email,
                 password: hashedPassword,
                 statuscode: statuscode
             });
             try{
                 await UserID.save();
-            } catch {
-                res.status(500).json(
+            } catch (errors) {
+                return res.status(500).json(
                 {
                     message: errors,
                 });
@@ -66,7 +73,7 @@ const signup = async(req, res) =>
             const token = await jwt.sign(
                 {
                     email,
-                    userid,
+                    UniqueID,
                 },
                 config.jwt.secret,
                 config.jwt.options,
@@ -93,7 +100,6 @@ const signup = async(req, res) =>
 const login = async (req, res) => {
     
     try{
-
         const {email, password} = req.body;
         //ユーザーのメールアドレス登録状況参照
         const user = await UserAccount.findOne({ mail: email });
@@ -116,9 +122,11 @@ const login = async (req, res) => {
         }
 
 
-        const { userid } = user;  // これはDBからメールアドレスをもとにUserIDを取得している
         const token = await jwt.sign(
-            { email, userid },
+            { 
+                email, 
+                UniqueID: user.UniqueID,
+            },
             config.jwt.secret,
             config.jwt.options
         );

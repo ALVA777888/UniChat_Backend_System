@@ -2,12 +2,13 @@ const router = require("express").Router();
 const express = require("express");
 const checkJWT = require("../middleware/checkJWT");
 const { UserPost } = require("../models/user");
+const { getUserID } = require("../utils/accountHelper");
 
 
 //ログインした対象userのpostのみ閲覧
 const userPost = async (req, res) => {
     try {
-        const userId = req.user.userid; //JWTからuseridを取得
+        const userId = await getUserID(req.UniqueID); //JWTからuseridを取得
         //特定のpostを取得、日時で降順にソート
         const posts = await UserPost.find({ userid: userId }).sort({ posttime: -1 }).limit(10);
 
