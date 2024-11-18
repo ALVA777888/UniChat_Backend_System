@@ -46,6 +46,26 @@ const getGroups = async (req, res) => {
     }
 };
 
+//メンバーを削除
+// const delUser_fromGroup = async (UniqueID, groupId) => {
+//     try{
+//         const user = await UserAccount.findOne({ UniqueID });
+//         user.groups =  user.groups.filter(group => group.groupId !== groupId);
+//         await user.save();
+
+//         const groups = await DirectMessage.findOne({ "groups.groupId": groupId });
+//         const group = groups.groups.find(g => g.groupId === groupId);
+
+
+//         group.members = group.members.filter(member => member !== UniqueID);
+//         await groups.save();
+//     } catch(err) {
+//         console.log(err);
+//     };
+// };
+
+
+
 //メンバーを確認
 const fetchMembers = async (groupId) => {
     try{
@@ -58,12 +78,20 @@ const fetchMembers = async (groupId) => {
         
         for(const UniqueID of group.members){
             const user = await UserAccount.findOne({ UniqueID });
-            if (!user) {
-                // ユーザーが存在しない場合は退会したユーザーとして扱う
-                retiredMembers.push(UniqueID);
-                continue;
-            }
+            // console.log(user.groups);
+            // if (!user) {
+            //     // ユーザーが存在しない場合は退会したユーザーとして扱う
+            //     retiredMembers.push(UniqueID);
+            //     continue;
+            // }
+
+            // ユーザーがグループに参加しているか確認
             const Approved = user.groups.find(group => group.groupId === groupId); 
+            if(!Approved){
+                const result = await delUser_fromGroup(UniqueID, groupId);
+                continue; //ユーザー側のDBで退出していればDMDBからも削除しコンテニューする
+            };
+
             members.push(user.UniqueID);//メンバーのユーザーIDを格納
             if(!Approved.isApproved){
                 NotApproval.push(user.UniqueID);//未加入メンバーのユーザーIDを格納

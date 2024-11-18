@@ -2,6 +2,7 @@ const { UserAccount } = require("../../models/user");
 const { DirectMessage } = require("../../models/directmessage");
 const { approval_permission, fetchMembers } = require("../../controller/directMessage/group.controller");
 const { v4: uuidv4 } = require('uuid');
+const { io } = require('../../server');
 
 
 //メッセージを送信
@@ -49,11 +50,16 @@ const sendMessage = async(req,res) =>{
                 contents: contents, 
                 timeStamp: Date.now()
             };
+
+            // // 新しいメッセージをクライアントに通知
+            // io.to(groupId).emit('newMessage', newMessage);
+           
             group.messages.push(newMessage);
             await DB.save();
             return res.json({
                 message: "送信完了",
             });
+            
         }
     } catch(err) {
         console.log(err);
@@ -69,15 +75,20 @@ const getMessages = async(req,res) =>{
     try{
         const groupId = req.params.groupId;
         const ID = process.env.DMDBID;
-        
-    
+        const { limit, offset } = req.query;
         const DB = await DirectMessage.findOne({ID : ID});
         const group = DB.groups.find(g => g.groupId === groupId);
+
+        // クエリパラメータを数値に変換
+        const limitNum = parseInt(limit, 10);
+        const offsetNum = parseInt(offset, 10);
+
         if(group)
         {
-            const contents = group.messages;
+            // 最新のメッセージから指定された数を取得
+            const contents = group.messages.reverse().slice(offsetNum, limitNum+offsetNum).reverse();
             return res.json({
-                contents,
+                contents: contents,
             })
         }else{
             return res.status(400).json({
