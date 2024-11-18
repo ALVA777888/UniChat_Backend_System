@@ -1,10 +1,7 @@
-const express = require('express');
-const router = express.Router();
-const { followUser } = require('../controllers/follow/follow.controller');
-const { unfollowUser } = require('../controllers/follow/unfollow.controller');
-const checkJWT = require('../middleware/checkJWT');
+const router = require("express").Router();
+const followUser = require('../controllers/follow/following.controller');
+const checkJWT = require("../middleware/checkJWT");
 
-router.post('/:userId/follow', checkJWT, followUser);
-router.delete('/:userid/unfollow', checkJWT, unfollowUser);
+router.post('/follow', checkJWT,followUser);
 
 module.exports = router;

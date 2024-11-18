@@ -41,7 +41,10 @@ const UserAccountSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "UserAccount",
     }],
-    groupId: [String],
+    groups:[{
+        groupId: String,
+        isApproved: Boolean,
+    }]
 });
 
 const UserPostSchema = new mongoose.Schema({
