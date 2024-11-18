@@ -174,7 +174,7 @@ const getAllPost = async (req, res) => {
         console.error("Error home timeline", error);
         return res.status(500).json({ message: "TimeLineの取得中にエラーが発生しました。"});
      }
-    };
+};
 
 //最新投稿を取得(デバッグ)
 const getRecent = async (req, res) => {
