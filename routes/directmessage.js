@@ -1,10 +1,10 @@
 const router = require("express").Router();
 const checkJWT = require('../middleware/checkJWT');
 const checkMember = require("../middleware/checkMember");
-const { createGroup } = require('../controller/directMessage/createGroup.controller');
-const { invite_user } = require('../controller/directMessage/invite.controller');
-const { getGroups, getMembers, } = require('../controller/directMessage/group.controller');
-const { sendMessage, getMessages } = require('../controller/directMessage/message.controller');
+const { createGroup } = require('../controllers/directMessage/createGroup.controller');
+const { invite_user } = require('../controllers/directMessage/invite.controller');
+const { getGroups, getMembers, } = require('../controllers/directMessage/group.controller');
+const { sendMessage, getMessages } = require('../controllers/directMessage/message.controller');
 
 
 

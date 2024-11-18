@@ -1,6 +1,6 @@
 const { UserAccount } = require("../../models/user");
 const { DirectMessage } = require("../../models/directmessage");
-const { approval_permission, fetchMembers } = require("../../controller/directMessage/group.controller");
+const { approval_permission, fetchMembers } = require("./group.controller");
 const { v4: uuidv4 } = require('uuid');
 const { io } = require('../../server');
 
