@@ -16,15 +16,15 @@ module.exports = async (req, res, next) => {
         let user = await JWT.verify(token, config.jwt.secret);
 
         //DBにメールアドレスが存在しているか確認
-        const user_UniqueID = await UserAccount.findOne({ UniqueID: user.UniqueID });
-        if (!user_UniqueID) {
+        const userObjectId = await UserAccount.findOne({ _id: user.userObjectId });
+        if (!userObjectId) {
             return res.status(400).json({
                 message: "アカウントが見つかりません。削除されている可能性があります",
             });
         }
 
         //トークンが有効かを確認
-        const invalidToken = await InvalidToken.findOne({ UniqueID: user.UniqueID });
+        const invalidToken = await InvalidToken.findOne({ userObjectId: user.userObjectId });
         if (invalidToken) {
             const tokenExists = invalidToken.invalid_tokens.includes(token);
             if (tokenExists) {
@@ -35,8 +35,8 @@ module.exports = async (req, res, next) => {
         }
 
   
-        req.UniqueID = user.UniqueID; //次の関数でも引き続きトークンにある情報を利用できるように入れてる
-        console.log("認証完了:"+user.email);
+        req.userObjectId = user.userObjectId; //次の関数でも引き続きトークンにある情報を利用できるように入れてる
+        console.log("認証完了:"+user.userObjectId);
         next();
 
     } catch (err) {

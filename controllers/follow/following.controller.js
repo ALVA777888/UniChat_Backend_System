@@ -4,37 +4,36 @@ const mongoose = require('mongoose');
 
 const followUser = async (req, res) => {
     try {
-        const { userId, targetUserId } = req.body;
+        const targetObjectId = req.body.targetUserId;
+        const userObjectId = req.userObjectId;
 
-        if (userId === targetUserId) {
+        if (userObjectId === targetObjectId) {
             return res.status(400).json({ message: "自分自身をフォローすることはできません" });
         }
 
-        const user = await UserAccount.findOne({ userid: userId });
+        const user = await UserAccount.findOne({ _id: userObjectId });
         if (!user) {
             return res.status(404).json({ message: "ユーザーが見つかりません" });
         }
 
-        const targetUser = await UserAccount.findOne({ userid: targetUserId });
+        const targetUser = await UserAccount.findOne({ _id: targetObjectId });
         if (!targetUser) {
             return res.status(404).json({ message: "フォロー対象のユーザーが見つかりません" });
         }
 
-        const userObjectId = user._id;
-        const targetUserObjectId = targetUser._id;
 
         const alreadyFollowing = targetUser.following.includes(userObjectId.toString());
 
         if (alreadyFollowing) {
             targetUser.following = targetUser.following.filter(id => id.toString() !== userObjectId.toString());
-            user.followers = user.followers.filter(id => id.toString() !== targetUserObjectId.toString());
+            user.followers = user.followers.filter(id => id.toString() !== targetObjectId.toString());
 
             await targetUser.save();
             await user.save();
             return res.json({ message: "フォローを解除しました" });
         } else {
             targetUser.following.push(userObjectId);
-            user.followers.push(targetUserObjectId);
+            user.followers.push(targetObjectId);
 
             await targetUser.save();
             await user.save();

@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const checkJWT = require("../middleware/checkJWT");
-const { post, getUserPost, getAllPost, getRecent, createPost, repost, likePost } = require("../controllers/post.controller");
-
+const { getUserPost, getAllPost, getRecent, createPost, repost, likePost } = require("../controllers/post.controller");
 
 router.post("/createpost", checkJWT, createPost);
 router.post("/repost", checkJWT, repost);

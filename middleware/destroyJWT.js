@@ -13,8 +13,8 @@ module.exports = async (req, res, next) => {
 
     try {
         const user = await JWT.verify(token, config.jwt.secret);
-        const User_UniqueID = user.UniqueID;
-        const invalidToken = await InvalidToken.findOne({ UniqueID: User_UniqueID });
+        const userObjectId = user.userObjectId;
+        const invalidToken = await InvalidToken.findOne({ userObjectId: userObjectId });
 
         if (invalidToken) {
             await InvalidToken.updateOne(
@@ -23,7 +23,7 @@ module.exports = async (req, res, next) => {
             );
         } else {
             const invalid_tokens = new InvalidToken({
-                UniqueID: User_UniqueID,
+                userObjectId: user.userObjectId ,
                 invalid_tokens: [token]  // 配列として初期化
             });
             await invalid_tokens.save();

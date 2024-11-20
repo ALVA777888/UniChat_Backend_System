@@ -1,8 +1,8 @@
 const { UserAccount } = require("../models/user");
 
-const getUserID = async (UniqueID, res) => {
+const getUserID = async (userObjectId, res) => {
     try {
-        const user = await UserAccount.findOne({ UniqueID });
+        const user = await UserAccount.findOne({ _id:userObjectId });
         if (!user) {
             return res.status(400).json({
                 message: "ユーザーが見つかりませんでした"
@@ -18,12 +18,12 @@ const getUserID = async (UniqueID, res) => {
     }
 }
 
-// ユーザーのUniqueIDを元にユーザー名を取得しJson形式で返す
-const getUserMap = async (uniqueIDs) => {
+// ユーザーのuserObjectIdを元にユーザー名を取得しJson形式で返す
+const getUserMap = async (userObjectIds) => {
     // クエリ条件を指定して特定のユーザーのみを取得
-    const users = await UserAccount.find({ UniqueID: { $in: uniqueIDs } }, 'UniqueID username');
+    const users = await UserAccount.find({ _id: { $in: userObjectIds } }, '_id username');
     const userMap = users.reduce((map, user) => {
-        map[user.UniqueID] = user.username;
+        map[user._id] = user.username;
         return map;
     }, {});
     return userMap;

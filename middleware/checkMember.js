@@ -3,7 +3,7 @@ const { DirectMessage } = require("../models/directmessage");
 // グループに存在しないユーザをはじく処理
 module.exports = async (req, res, next) => {
     try {
-        const UniqueID = req.UniqueID;
+        const userObjectId = req.userObjectId;
         const groupid = req.params.groupId;
         
         // グループの存在確認とユーザーの所属確認を一度に行う
@@ -17,7 +17,7 @@ module.exports = async (req, res, next) => {
 
         const foundGroup = user.groups.find(group => group.groupId === groupid);
 
-        if (!foundGroup || !foundGroup.members.includes(UniqueID)) {
+        if (!foundGroup || !foundGroup.members.includes(userObjectId)) {
             return res.status(400).json({
                 message: "あなたはこのグループのメンバーではありません。"
             });

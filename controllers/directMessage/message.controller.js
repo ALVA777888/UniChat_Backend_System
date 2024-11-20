@@ -8,19 +8,19 @@ const { io } = require('../../server');
 //メッセージを送信
 const sendMessage = async(req,res) =>{
     try{
-        const UniqueID = req.UniqueID;
+        const userObjectId = req.userObjectId;
         const contents = req.body.contents;
         const isApproved = req.body.isApproved;
         const groupId = req.params.groupId;
         const ID = process.env.DMDBID;
 
 
-        const user = await UserAccount.findOne({ UniqueID });
+        const user = await UserAccount.findOne({ _id:userObjectId });
         const userGroup = user.groups.find(group => group.groupId === groupId); 
 
         //招待を承諾する
         if(isApproved == "OK" && userGroup.isApproved == false){
-            const result = await approval_permission(UniqueID, groupId);
+            const result = await approval_permission(userObjectId, groupId);
             return res.status(200).json({
                 result: result
             })
@@ -46,7 +46,7 @@ const sendMessage = async(req,res) =>{
         if(group){
             const newMessage = {
                 id: uuidv4(), 
-                sender: UniqueID, 
+                sender: userObjectId, 
                 contents: contents, 
                 timeStamp: Date.now()
             };

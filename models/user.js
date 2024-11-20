@@ -3,11 +3,6 @@ const mongoose = require("mongoose");
 //User情報関係のDBのフォーマットを形成している場所
 
 const UserAccountSchema = new mongoose.Schema({
-    UniqueID:{//ユーザー一人に与えられる固有のID 
-        type: String,
-        required: true,
-        trim: true,
-    },
     userid:{//アカウントのID
         type: String,
         required: true,
@@ -24,6 +19,11 @@ const UserAccountSchema = new mongoose.Schema({
         trim: true,
     },
     password:{
+        type: String,
+        required: true,
+        trim: true,
+    },
+    CollegeName:{
         type: String,
         required: true,
         trim: true,
@@ -48,15 +48,9 @@ const UserAccountSchema = new mongoose.Schema({
 });
 
 const UserPostSchema = new mongoose.Schema({
-    // postid:{
-    //     type: String,
-    //     required: true,
-    //     trim: true,
-    // },
-    userid:{
+    userObjectId:{ //投稿したユーザーのID
         type: String,
-        required: true,
-        trim: true,
+        trim: false,
     },
     posttext:{
         type: String,
@@ -89,7 +83,7 @@ const UserPostSchema = new mongoose.Schema({
 
 //破棄されたトークンを保存するためのスキーマ
 const InvalidTokenSchema = new mongoose.Schema({
-    UniqueID:{
+    userObjectId:{
         type: String,
         required: true,
         trim: false,

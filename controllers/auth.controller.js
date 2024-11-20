@@ -13,9 +13,9 @@ const signup = async(req, res) =>
     {
         try{
             //Postされたbodyの内容を各変数に入れている
-            const UniqueID = uuidv4();
             const email = req.body.email;
             const password = req.body.password;
+            const CollegeName = req.body.collegename;
             const userid = req.body.userid;
             let username = req.body.username;
             const statuscode = "0000"; 
@@ -53,10 +53,10 @@ const signup = async(req, res) =>
             let hashedPassword = await bcrypt.hash(password, 10);
             //データベースに保存
             const UserID = new UserAccount({
-                UniqueID,
                 userid: userid,
                 username: username = username || userid,//usernameが登録されていなかったらuseridにする
                 mail: email,
+                CollegeName: CollegeName = CollegeName || "Unaffiliated",
                 password: hashedPassword,
                 statuscode: statuscode
             });
@@ -73,7 +73,7 @@ const signup = async(req, res) =>
             const token = await jwt.sign(
                 {
                     email,
-                    UniqueID,
+                    userObjectId: UserID._id,
                 },
                 config.jwt.secret,
                 config.jwt.options,
@@ -125,7 +125,7 @@ const login = async (req, res) => {
         const token = await jwt.sign(
             { 
                 email, 
-                UniqueID: user.UniqueID,
+                userObjectId: user._id,
             },
             config.jwt.secret,
             config.jwt.options

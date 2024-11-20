@@ -28,8 +28,8 @@ const findOrCreateDirectMessageDB = async() => {
 const createGroup = async (req,res) => {
 
     try{
-        const UniqueID = req.UniqueID;
-        const userid = await getUserID(req.UniqueID);
+        const userObjectId = req.userObjectId;
+        const userid = await getUserID(userObjectId);
         const groupname = req.body.groupname;
         const members = [...new Set(req.body.members)];//同じメンバーIDがある場合は消す
         const groupid = uuidv4();
@@ -43,7 +43,7 @@ const createGroup = async (req,res) => {
 
 
         //招待するメンバーのバリデーションチェック
-        const validation_result = await validateMembers(members, groupid, UniqueID);
+        const validation_result = await validateMembers(members, groupid, userObjectId);
 
         if(validation_result.ok == false){
             return res.status(400).json({
@@ -62,7 +62,8 @@ const createGroup = async (req,res) => {
         DB.groups.push({
             groupId: groupid,
             groupname: groupname,
-            members: [UniqueID],
+            Inviter: userObjectId,
+            members: [userObjectId],
             messages: []
         });
         await DB.save();
@@ -88,6 +89,7 @@ const createGroup = async (req,res) => {
         res.status(200).json({
             message: "グループチャットが作成され、ユーザーを招待しました。承認してもらうと正式に参加されます。",
             Invited_user: members,
+            Inviter: userObjectId,
             link: groupid,
         })
 

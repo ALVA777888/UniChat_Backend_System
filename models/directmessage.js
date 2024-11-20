@@ -9,6 +9,7 @@ const directmessageSchema = new mongoose.Schema(
             {            
                 groupId: String,
                 groupname: String,
+                Inviter: String,
                 members: [String],
                 messages: [
                     {

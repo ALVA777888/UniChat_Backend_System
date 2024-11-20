@@ -1,13 +1,14 @@
 const { UserAccount } = require("../../models/user");
 const { DirectMessage } = require("../../models/directmessage");
 const { getUserID, getUserMap } = require("../../utils/accountHelper");
+const { get } = require("mongoose");
 
 
 //グループを取得
 const getGroups = async (req, res) => {
     try {
         const getgroupsName = [];
-        const userid = await getUserID(req.UniqueID);
+        const userid = await getUserID(req.userObjectId);
         const user = await UserAccount.findOne({ userid: userid });
 
         if (!user) {
@@ -76,28 +77,29 @@ const fetchMembers = async (groupId) => {
         const groups = await DirectMessage.findOne({ "groups.groupId": groupId });
         const group = groups.groups.find(g => g.groupId === groupId);
         
-        for(const UniqueID of group.members){
-            const user = await UserAccount.findOne({ UniqueID });
+        for(const userObjectId of group.members){
+            const user = await UserAccount.findOne({ _id:userObjectId });
             // console.log(user.groups);
             // if (!user) {
             //     // ユーザーが存在しない場合は退会したユーザーとして扱う
-            //     retiredMembers.push(UniqueID);
+            //     retiredMembers.push(userObjectId);
             //     continue;
             // }
 
             // ユーザーがグループに参加しているか確認
             const Approved = user.groups.find(group => group.groupId === groupId); 
             if(!Approved){
-                const result = await delUser_fromGroup(UniqueID, groupId);
+                const result = await delUser_fromGroup(userObjectId, groupId);
                 continue; //ユーザー側のDBで退出していればDMDBからも削除しコンテニューする
             };
 
-            members.push(user.UniqueID);//メンバーのユーザーIDを格納
+            members.push(user._id);//メンバーのユーザーIDを格納
             if(!Approved.isApproved){
-                NotApproval.push(user.UniqueID);//未加入メンバーのユーザーIDを格納
+                NotApproval.push(user._id);//未加入メンバーのユーザーIDを格納
             }
         }
 
+        console.log(members);
         const usernames = await getUserMap(members);
         const NotApproval_usernames = await getUserMap(NotApproval);
         retiredMembers.forEach(id => {
@@ -129,7 +131,7 @@ const getMembers = async(req,res) => {
 
         return res.status(200).json({
             message: "メンバー取得成功",
-            me: req.UniqueID,
+            me: req.userObjectId,
             members: result.usernames,
             NotApproval: result.NotApproval,
         })
@@ -142,9 +144,9 @@ const getMembers = async(req,res) => {
 };
 
 //グループ参加に承諾
-const approval_permission = async(UniqueID, groupId) => {
+const approval_permission = async(userObjectId, groupId) => {
     try{
-        const user = await UserAccount.findOne({ UniqueID });
+        const user = await UserAccount.findOne({ _id:userObjectId });
         const userGroup = user.groups.find(group => group.groupId === groupId); 
               
         userGroup.isApproved = true;
