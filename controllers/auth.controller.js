@@ -56,7 +56,7 @@ const signup = async(req, res) =>
                 userid: userid,
                 username: username = username || userid,//usernameが登録されていなかったらuseridにする
                 mail: email,
-                CollegeName: CollegeName = CollegeName || "Unaffiliated",
+                CollegeName: CollegeName || "Unaffiliated",
                 password: hashedPassword,
                 statuscode: statuscode
             });
