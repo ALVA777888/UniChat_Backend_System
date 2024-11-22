@@ -10,7 +10,7 @@ const UserAccountSchema = new mongoose.Schema({
     },
     username:{
         type: String,
-        required: true,
+        // required: true,
         trim: true,
     },
     mail:{//学校用のメールアドレス
@@ -25,7 +25,7 @@ const UserAccountSchema = new mongoose.Schema({
     },
     CollegeName:{
         type: String,
-        required: true,
+        // required: true,
         trim: true,
     },
     statuscode:{//ユーザーの追加情報を保存する。例えばBANであったりなど

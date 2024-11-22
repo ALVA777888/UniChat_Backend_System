@@ -9,7 +9,7 @@ const createPost = async(req,res) =>{
     const Posttext = req.body.posttext;
 
     try {
-        if (Posttext === "" || !Array.isArray(Posttext)) {
+        if (Posttext === "") {
             return res.status(400).json({ message: "テキストボックスが空白です" });
         }
         const newPost = new UserPost({

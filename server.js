@@ -9,13 +9,12 @@ const dm = require("./routes/directmessage");
 
 const follow = require('./routes/follow');
 
-
 const debug = require("./routes/debug")
 
 const server = http.createServer(app);
 const io = socketIo(server);
 const mongoose = require("mongoose");
-const followUser = require("./controllers/follow/following.controller");
+
 
 const PORT = 3000; //ローカルで使用するPORTを指定
 
@@ -29,6 +28,7 @@ app.use("/auth", auth);//authを指定してWebAPIを構築できるようにす
 app.use("/dm", dm);
 app.use("/post", post);
 app.use("/follow", follow);
+
 
 app.use("/debug", debug);
 

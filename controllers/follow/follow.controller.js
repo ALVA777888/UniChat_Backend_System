@@ -2,7 +2,7 @@ const {UserPost} = require("../../models/user");
 const {UserAccount} = require('../../models/user');
 const mongoose = require('mongoose'); 
 
-const followUser = async (req, res) => {
+const addFollow = async (req, res) => {
     try {
         const targetObjectId = req.body.targetUserId;
         const userObjectId = req.userObjectId;
@@ -46,4 +46,4 @@ const followUser = async (req, res) => {
 };
 
 
-module.exports = followUser;
+module.exports = addFollow;
