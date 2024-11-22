@@ -113,12 +113,36 @@ const likePost = async (req, res) => {
 
 
 //ログインした対象userのpostのみ閲覧
-const getUserPost = async (req, res) => {
+const getMyPost = async (req, res) => {
     try {
         const userObjectId = req.userObjectId; //JWTからuseridを取得
         //特定のpostを取得、日時で降順にソート
         const posts = await UserPost.find({ userObjectId }).sort({ posttime: -1 }).limit(10);
 
+        return res.json(posts);
+    } catch (error) {
+        console.error("Error home timeline", error);
+        return res.status(500).json({ message: "TimeLineの取得中にエラーが発生しました。"});
+    }
+};
+
+//フォローしたuserのpostのみ閲覧
+const getFollowingsPost = async (req, res) => {
+    try {
+        const userObjectId = req.userObjectId;
+        
+        const user = await UserAccount.findById(userObjectId);
+        if (!user) {
+            return res.status(404).json({ message: "ユーザーが見つかりません" });
+        }
+
+        const followingUserIds = user.following;
+
+        //特定のpostを取得、日時で降順にソート
+        const posts = await UserPost.find({ userObjectId: { $in: followingUserIds } })
+        .sort({ posttime: -1 })
+        .limit(10);
+        
         return res.json(posts);
     } catch (error) {
         console.error("Error home timeline", error);
@@ -153,4 +177,4 @@ const getRecent = async (req, res) => {
 
 
 
-module.exports = {createPost,repost,likePost,getUserPost,getAllPost,getRecent};
+module.exports = {createPost,repost,likePost,getMyPost,getFollowingsPost,getAllPost,getRecent};
