@@ -52,7 +52,15 @@ const UserPostSchema = new mongoose.Schema({
         type: String,
         trim: false,
     },
+    userName:{ //投稿したユーザーの表示名前
+        type: String,
+        trim: false,
+    },
     posttext:{
+        type: String,
+        trim: false,
+    },
+    postfile:{
         type: String,
         trim: false,
     },
