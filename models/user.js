@@ -44,7 +44,20 @@ const UserAccountSchema = new mongoose.Schema({
     groups:[{
         groupId: String,
         isApproved: Boolean,
-    }]
+    }],
+
+});
+
+const TempUserSchema = new mongoose.Schema({
+    mail:{
+        type: String,
+    },
+    verificationCode:{
+        type: String,
+    },
+    result:{
+        type: Boolean,
+    }
 });
 
 const UserPostSchema = new mongoose.Schema({
@@ -108,4 +121,5 @@ const InvalidTokenSchema = new mongoose.Schema({
 const UserAccount = mongoose.model("UserAccount", UserAccountSchema);
 const UserPost = mongoose.model("UserPost", UserPostSchema);
 const InvalidToken = mongoose.model("InvalidToken", InvalidTokenSchema);
-module.exports = { UserAccount,UserPost,InvalidToken};
+const TempUser = mongoose.model("TempUser", TempUserSchema);
+module.exports = { UserAccount,TempUser,UserPost,InvalidToken};

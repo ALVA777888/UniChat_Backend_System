@@ -1,8 +1,13 @@
 const { body, validationResult } = require("express-validator");
-const { validateAlphanumeric } = require("../utils/utils");
+const { validateAlphanumeric, validateEmailDomain } = require("../utils/utils");
 
 const checkValidation = [
-    body("email").isEmail().withMessage("有効なメールアドレスを入力してください"),
+    body("email").custom(value => {
+        if (!validateEmailDomain(value)) {
+            throw new Error("許可されていないドメインです\n学校のドメインのみが許可されています");
+        }
+        return true;
+    }),
     body("password").isLength({ min: 6 }).withMessage("パスワードは6文字以上でなければなりません"),
     body("userid").custom(value => {
         if (!validateAlphanumeric(value)) {

@@ -15,4 +15,7 @@ module.exports = {
         passkey: process.env.DBPASSKEY,
         url: process.env.DBURL,
     },
+    mail: {
+        valid_domain: process.env.VAL_DOMAIN,
+    },
 };

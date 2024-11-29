@@ -80,11 +80,11 @@ const fetchMembers = async (groupId) => {
         for(const userObjectId of group.members){
             const user = await UserAccount.findOne({ _id:userObjectId });
             // console.log(user.groups);
-            // if (!user) {
-            //     // ユーザーが存在しない場合は退会したユーザーとして扱う
-            //     retiredMembers.push(userObjectId);
-            //     continue;
-            // }
+            if (!user) {
+                // ユーザーが存在しない場合は退会したユーザーとして扱う
+                retiredMembers.push(userObjectId);
+                continue;
+            }
 
             // ユーザーがグループに参加しているか確認
             const Approved = user.groups.find(group => group.groupId === groupId); 
