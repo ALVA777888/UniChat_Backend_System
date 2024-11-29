@@ -13,8 +13,6 @@ const debug = require("./routes/debug")//デバッグ用のルート
 
 const server = http.createServer(app);
 const mongoose = require("mongoose");
-const io = socketIo(server);
-
 const PORT = 3000; //ローカルで使用するPORTを指定
 
 mongoose.connect(config.database.url)
@@ -30,21 +28,8 @@ app.use("/follow", follow);
 app.use("/contents", contents);
 app.use("/debug", debug);
 
-io.on('connection', (socket) => {
-    console.log('New client connected');
 
-    socket.on('joinGroup', (groupId) => {
-        socket.join(groupId);
-        console.log(`Client joined group ${groupId}`);
-    });
-
-    socket.on('disconnect', () => {
-        console.log('Client disconnected');
-    });
-});
 
 app.listen(PORT, () => {
     console.log("Running");
 });
-
-module.exports = { io };

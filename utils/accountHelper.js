@@ -24,7 +24,7 @@ const getUserName = async (userObjectId, res) => {
     try {
         const user = await UserAccount.findOne({ _id:userObjectId });
         if (!user) {
-            return "DELETED_USER";
+            return "退会したユーザー";
         }
         console.log(user.username);
         return user.username;
