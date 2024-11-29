@@ -2,20 +2,18 @@ const express = require("express");
 const http = require('http');
 const socketIo = require('socket.io');
 const app = express();
+const config = require("./config");
+
 const auth = require("./routes/auth");
 const post = require("./routes/post");
-const config = require("./config");
 const dm = require("./routes/directmessage");
-
 const follow = require('./routes/follow');
-
-
-const debug = require("./routes/debug")
+const contents = require("./routes/contents");
+const debug = require("./routes/debug")//デバッグ用のルート
 
 const server = http.createServer(app);
-const io = socketIo(server);
 const mongoose = require("mongoose");
-const followUser = require("./controllers/follow/following.controller");
+const io = socketIo(server);
 
 const PORT = 3000; //ローカルで使用するPORTを指定
 
@@ -29,7 +27,7 @@ app.use("/auth", auth);//authを指定してWebAPIを構築できるようにす
 app.use("/dm", dm);
 app.use("/post", post);
 app.use("/follow", follow);
-
+app.use("/contents", contents);
 app.use("/debug", debug);
 
 io.on('connection', (socket) => {

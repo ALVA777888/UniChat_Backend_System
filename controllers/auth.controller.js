@@ -56,7 +56,7 @@ const signup = async(req, res) =>
                 userid: userid,
                 username: username = username || userid,//usernameが登録されていなかったらuseridにする
                 mail: email,
-                CollegeName: CollegeName = CollegeName || "Unaffiliated",
+                CollegeName: CollegeName || "Unaffiliated",
                 password: hashedPassword,
                 statuscode: statuscode
             });
@@ -82,6 +82,7 @@ const signup = async(req, res) =>
             //トークンを返す、これは、将来的にはcookieにあるトークンと照合する
             return res.json({
                 token: token,
+                myuserid: UserID._id,
                 message: "アカウント作成完了"
             });
 
@@ -134,6 +135,7 @@ const login = async (req, res) => {
         //トークンを返す
         return res.json({
             token: token,
+            myuserid: user._id,
             message: "ログイン成功",
         });
     } catch (err) {
