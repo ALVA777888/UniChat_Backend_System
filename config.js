@@ -17,5 +17,8 @@ module.exports = {
     },
     mail: {
         valid_domain: process.env.VAL_DOMAIN,
+        provider_address: process.env.MAIL_PROVIDER_ADDRESS,
+        provider_address_key: process.env.MAIL_PROVIDER_ADDRESS_KEY,
+        
     },
 };

@@ -14,8 +14,8 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-        user: 'unichat.servicecenter@gmail.com',
-        pass: 'crwl gerc dcyt vkit' // ここに生成したアプリパスワードを入力
+        user: config.mail.provider_address, // ここに自分のGmailアドレスを入力
+        pass: config.mail.provider_address_key, // ここに生成したアプリパスワードを入力
     }
 });
 
@@ -57,7 +57,7 @@ const signup = async (req, res) => {
         await tempUserObj.save();
 
         await transporter.sendMail({
-            from: 'unichat.servicecenter@gmail.com',
+            from: config.mail.provider_address,
             to: email,
             subject: '確認コード',
             text: `あなたの確認コードは ${verificationCode} です。`
