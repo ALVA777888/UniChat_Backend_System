@@ -29,6 +29,38 @@ const createPost = async(req,res) =>{
     }
 };
 
+const createReply = async(req,res) =>{
+   
+    const userObjectId = req.userObjectId;
+    const Posttext = req.body.posttext;
+    const originalPostId = req.body.originalPostId;
+
+    try {
+        if (Posttext === "") {
+            return res.status(400).json({ message: "テキストボックスが空白です" });
+        }
+        const newReply = new UserPost({
+            userObjectId,
+            posttext: Posttext,
+            posttime: Date.now(),
+            replyTo: originalPostId,
+            statuscode: "reply"
+        });
+        
+        await newReply.save();
+
+        await UserPost.findByIdAndUpdate(originalPostId,{
+            $push: { replies: newReply._id },
+        });
+
+        return res.json({ userObjectId: userObjectId, message: "投稿完了", newReply });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({ message: "サーバー側で何かしらのエラーが発生しました" });
+    }
+};
+
 const repost = async (req, res) => {
     const { originalPostId } = req.body;
     const userObjectId = req.userObjectId;
@@ -111,7 +143,6 @@ const likePost = async (req, res) => {
     }
 };
 
-
 //ログインした対象userのpostのみ閲覧
 const getMyPost = async (req, res) => {
     try {
@@ -177,4 +208,4 @@ const getRecent = async (req, res) => {
 
 
 
-module.exports = {createPost,repost,likePost,getMyPost,getFollowingsPost,getAllPost,getRecent};
+module.exports = {createPost,createReply,repost,likePost,getMyPost,getFollowingsPost,getAllPost,getRecent};

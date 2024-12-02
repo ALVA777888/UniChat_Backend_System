@@ -72,7 +72,16 @@ const UserPostSchema = new mongoose.Schema({
     }],
     likes: [{ //配列[いいねをしたユーザーIDの]
         type: mongoose.Schema.Types.ObjectId,
-        ref: "UserAccount",
+        ref: "UserPost",
+    }],
+    replies: [{ //配列
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserPost",
+    }],
+    replyTo: [{ //リプライ先ID
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserPost",
+        default: null,
     }],
     statuscode: {//投稿内容の追加情報を保存する。例えば、制限が設けられた投稿など
         type: String,
