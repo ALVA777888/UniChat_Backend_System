@@ -32,24 +32,27 @@ const createPost = async(req,res) =>{
 const createReply = async(req,res) =>{
    
     const userObjectId = req.userObjectId;
-    const Posttext = req.body.posttext;
-    const originalPostId = req.body.originalPostId;
+    const posttext = req.body.posttext;
+    const postId= req.body.postId;
 
     try {
-        if (Posttext === "") {
+        if (posttext === "") {
             return res.status(400).json({ message: "テキストボックスが空白です" });
         }
         const newReply = new UserPost({
             userObjectId,
-            posttext: Posttext,
+            posttext,
             posttime: Date.now(),
-            replyTo: originalPostId,
+            replyTo: postId,
             statuscode: "reply"
         });
+
+        console.log(posttext);
+
         
         await newReply.save();
 
-        await UserPost.findByIdAndUpdate(originalPostId,{
+        await UserPost.findByIdAndUpdate(postId,{
             $push: { replies: newReply._id },
         });
 
