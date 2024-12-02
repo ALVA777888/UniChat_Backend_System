@@ -2,7 +2,62 @@ const { UserAccount } = require("../models/user");
 const { DirectMessage } = require("../models/directmessage");
 const { getUserID } = require("./accountHelper");
 const mongoose = require("mongoose");
+const { validateEmailDomain } = require("./utils");
 
+
+//ログイン関連のバリデーション
+const validationEmail = async (email) => {
+    try {
+        if(!email){
+            return { message: "メールアドレスを入力してください", ok: false };
+        }
+        if(!validateEmailDomain(email)){
+            return { message: "許可されていないドメインです\n学校のドメインのみが許可されています", ok: false };
+        }
+
+        return { message: "このメールアドレスは使用可能です", ok: true };
+    }
+    catch (err) {
+        console.log(err);
+        return { message: "アカウント参照中にエラー", ok: false };
+    }
+};
+const validationPassword = (password) => {
+    const passwordLength = 8;
+    let isErorr = false;
+    const ErrorMessage = [];
+
+    if(!password){
+        return { message: "パスワードを入力してください", ok: false };
+    }
+
+    if(password.length < passwordLength){
+        isErorr = true;
+        ErrorMessage.push(passwordLength+"文字以上");
+    }
+    if (!/[A-Z]/.test(password)) {
+        isErorr = true;
+        ErrorMessage.push("大文字が含まれている");
+    }
+    if (!/[a-z]/.test(password)) {
+        isErorr = true;
+        ErrorMessage.push("小文字が含まれている"); 
+    }
+    if (!/[0-9]/.test(password)) {
+        isErorr = true;
+        ErrorMessage.push("数字が含まれている");
+    }
+
+    if(isErorr){
+        ErrorMessage.unshift("パスワードは以下の条件を満たしていません");
+        return { message: ErrorMessage.join(',\n'), ok: false };
+    }
+
+    return { message: "パスワードは使用可能です", ok: true };
+};
+
+
+//チャットメンバーに関するバリデーション
 const validateMembers = async (members_ObjectId, groupid, userObjectId) => {
 
     const err_users = [];
@@ -68,4 +123,6 @@ const validateMembers = async (members_ObjectId, groupid, userObjectId) => {
 
 };
 
-module.exports = { validateMembers };
+
+
+module.exports = { validationEmail, validationPassword, validateMembers };

@@ -1,11 +1,11 @@
 const jwt = require("jsonwebtoken");
 const config = require("../config");
 const bcrypt = require("bcrypt");
-const {UserAccount} = require("../models/user");
-const {TempUser} = require("../models/user");
+const { UserAccount, TempUser } = require("../models/user");
 const { validateAlphanumeric } = require("../utils/utils")
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { validationEmail, validationPassword } = require("../utils/validation");
 
 
 //ここではログイン関係を管理しているスクリプトになる
@@ -29,24 +29,24 @@ const signup = async (req, res) => {
         const email = req.body.email;
         const verificationCode = generateVerificationCode();// 確認コードの生成と送信
 
-        // DBに同じユーザが居るかのチェック
-        const userObj = await UserAccount.findOne({ mail: email });
-        if (userObj) {
-                return res.status(400).json({
-                    message: "すでにそのメールアドレスは存在しています",
-            })
-        };
+
+        const resultEmail = await validationEmail(email);
+        // メールアドレスのバリデーションチェック
+        if(!resultEmail.ok){
+            return res.status(400).json({ message: resultEmail.message });
+        }
+
+        //今回特有のバリデーションチェック
+        const user = await UserAccount.findOne({ mail: email });
+        if(user){
+            return res.status(400).json({ message: "すでに登録されているメールアドレスです" });
+        }
+        
 
         // 仮アカウントの作成
         let tempUserObj = await TempUser.findOne({ mail : email });
         if(tempUserObj){
-            if(tempUserObj.result === true){
-                return res.status(400).json({
-                    message: "すでにそのメールアドレスは存在しています",
-                });
-            }else{
-                tempUserObj.verificationCode = verificationCode;
-            }
+            tempUserObj.verificationCode = verificationCode;
         } else {
             tempUserObj = await new TempUser({
                 mail: email,
@@ -62,7 +62,6 @@ const signup = async (req, res) => {
             subject: '確認コード',
             text: `あなたの確認コードは ${verificationCode} です。`
         });
-
 
         return res.status(200).json({
             url: tempUserObj._id,
@@ -106,16 +105,22 @@ const createAccount = async(req, res) =>
         try{
             //Postされたbodyの内容を各変数に入れている
             const tempUserObjID = req.params.url;
-
             const password = req.body.password;
-            let CollegeName = req.body.collegename;
-            const userid = req.body.userid;
-            let username = req.body.username;
-            const statuscode = "0000"; 
+            const statuscode = "0001"; 
 
+            if(!tempUserObjID){
+                return res.status(400).json(
+                    {
+                        message: "仮登録がありません。",
+                    });
+            }
             const tempUserObj = await TempUser.findOne({ _id: tempUserObjID });
-            const email = tempUserObj.mail;
-
+            if(!tempUserObj){
+                return res.status(400).json(
+                    {
+                        message: "仮登録情報が見つかりませんでした。すでにアカウントが作成されている可能性があります。",
+                    });
+            }
             if(tempUserObj.result === false){
                 return res.status(400).json(
                     {
@@ -123,40 +128,24 @@ const createAccount = async(req, res) =>
                     });
             }
 
-            
-            //半角英数のバリデーションチェック
-            if (!validateAlphanumeric(userid)) {
-                return res.status(400).json(
-                    {   
-                        message: "UserIDは半角英数のみ有効です",
-                    });
+            const email = tempUserObj.mail;
+
+            //パスワードのバリデーションチェック
+            const resultPassword = await validationPassword(password);
+            if(!resultPassword.ok){
+                return res.status(400).json({ message: resultPassword.message });
             }
-            if(userid === ""){
-                return res.status(400).json(
-                    {
-                        message: "UserIDが空白です",
-                    });
-            }
-            
-            //DBに同じユーザネームが居るかチェック
-            const user_id = await UserAccount.findOne({ userid: userid });
-            if(user_id){
-                return res.status(400).json(
-                {
-                    message: "すでにそのユーザネームは存在しています",
-                });
-            }  
 
             //パスワードの暗号化
             const hashedPassword = await bcrypt.hash(password, 10);
-
             // データベースに保存
             const UserID = new UserAccount({
-                userid: userid,
-                username: username = username || userid,//usernameが登録されていなかったらuseridにする
                 mail: email,
-                CollegeName: CollegeName = CollegeName || "Unaffiliated",
                 password: hashedPassword,
+                //仮の値
+                userid: "incomplete_user#" + tempUserObj._id,
+                username: username = "未設定#" + tempUserObj._id,
+                CollegeName: CollegeName = "Unaffiliated",
                 statuscode: statuscode
             });
 
@@ -169,7 +158,8 @@ const createAccount = async(req, res) =>
                 });
             }
 
-            const test = await TempUser.findOneAndDelete({ _id: tempUserObjID });
+            //仮登録情報の削除
+            await TempUser.findOneAndDelete({ _id: tempUserObjID });
 
             //クライアントへJWTの発行
             const token = await jwt.sign(
@@ -203,6 +193,12 @@ const login = async (req, res) => {
     
     try{
         const {email, password} = req.body;
+
+        //メールアドレスのバリデーションチェック
+        const resultEmail = await validationEmail(email);
+        if(!resultEmail.ok){
+            return res.status(400).json({ message: resultEmail.message });
+        }
         //ユーザーのメールアドレス登録状況参照
         const user = await UserAccount.findOne({ mail: email });
         if(!user){
@@ -213,7 +209,10 @@ const login = async (req, res) => {
             );
         }
 
-
+        if(!password){
+            return { message: "パスワードを入力してください", ok: false };
+        }
+        
         //パスワードの複合、参照
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch){
@@ -224,7 +223,7 @@ const login = async (req, res) => {
             );
         }
 
-
+        //クライアントへJWTの発行
         const token = await jwt.sign(
             { 
                 email, 
@@ -272,8 +271,6 @@ const logout = async(req,res) => {
         message: "ログアウト完了。現在のトークンを破棄しました",
     });
 };
-
-
 
 
 module.exports = { signup, verifyCode, createAccount, login, auto_login, logout };

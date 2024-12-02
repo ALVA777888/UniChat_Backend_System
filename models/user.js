@@ -28,6 +28,9 @@ const UserAccountSchema = new mongoose.Schema({
         required: true,
         trim: true,
     },
+    userBio:{
+        type: String,
+    },
     statuscode:{//ユーザーの追加情報を保存する。例えばBANであったりなど
         type: String,//TODO:文字列じゃなくて数列に変更したい
         required: true,
@@ -117,9 +120,26 @@ const InvalidTokenSchema = new mongoose.Schema({
 
 })
 
+//有効なトークンを保存するためのスキーマ
+//導入予定の機能だが、現在は使わない
+const ValidTokenSchema = new mongoose.Schema({
+    userObjectId:{
+        type: String,
+        required: true,
+        trim: false,
+    },
+    valid_tokens:{
+        type: [String],
+        required: true,
+        trim: false,
+    },
+
+})
+
 
 const UserAccount = mongoose.model("UserAccount", UserAccountSchema);
 const UserPost = mongoose.model("UserPost", UserPostSchema);
 const InvalidToken = mongoose.model("InvalidToken", InvalidTokenSchema);
+const ValidToken = mongoose.model("ValidToken", ValidTokenSchema);
 const TempUser = mongoose.model("TempUser", TempUserSchema);
-module.exports = { UserAccount,TempUser,UserPost,InvalidToken};
+module.exports = { UserAccount,TempUser,UserPost,InvalidToken, ValidToken };

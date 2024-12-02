@@ -9,6 +9,8 @@ const post = require("./routes/post");
 const dm = require("./routes/directmessage");
 const follow = require('./routes/follow');
 const contents = require("./routes/contents");
+const UserAccountManagement = require("./routes/account");
+
 const debug = require("./routes/debug")//デバッグ用のルート
 
 const server = http.createServer(app);
@@ -26,6 +28,8 @@ app.use("/dm", dm);
 app.use("/post", post);
 app.use("/follow", follow);
 app.use("/contents", contents);
+app.use("/accountmanagement", UserAccountManagement);
+
 app.use("/debug", debug);
 
 
