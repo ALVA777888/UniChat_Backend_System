@@ -4,9 +4,7 @@ const getUserID = async (userObjectId, res) => {
     try {
         const user = await UserAccount.findOne({ _id:userObjectId });
         if (!user) {
-            return res.status(400).json({
-                message: "ユーザーが見つかりませんでした"
-            });
+            return "Unknown_User";
         }
         console.log(user.userid);
         return user.userid;

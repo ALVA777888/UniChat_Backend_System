@@ -1,6 +1,6 @@
 const {UserPost} = require("../models/user");
 const {UserAccount} = require('../models/user');
-const { getUserName } = require("../utils/accountHelper");
+const { getUserName, getUserID } = require("../utils/accountHelper");
 
 
 //Post機能、有効なJWTを保持している人のみ投稿できる。現状はユーザーを正確に識別する機能を実装しているわけではない
@@ -101,13 +101,19 @@ const likePost = async (req, res) => {
         if (existingLike) {
             originalPost.likes = originalPost.likes.filter(like => !like.equals(userIdFromDB));
             await originalPost.save();
-            return res.json({ message: "いいねを解除しました" });
+            return res.json({ 
+                message: "いいねを解除しました",
+                status: false
+            });
         }
 
         originalPost.likes.push(userIdFromDB);
         await originalPost.save();
 
-        return res.json({ message: "いいねしました" });
+        return res.json({ 
+            message: "いいねしました",
+            status: true
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "サーバー側で何かしらのエラーが発生しました" });
@@ -137,17 +143,19 @@ const getAllPost = async (req, res) => {
         // 各投稿に対してuserObjectIdを関数Aに渡しuserNameを設定
         const modifiedPosts = await Promise.all(posts.map(async (post) => {
             const userName = await getUserName(post.userObjectId);
+            const userID = await getUserID(post.userObjectId);
             const isMyLike = post.likes.includes(userObjectId); // 自分のIDがlikesに含まれているかをチェック
             const likes = post.likes.length;
             return {
                 ...post._doc, // Mongooseドキュメントを普通のオブジェクトに変換
                 userName: userName, // 関数Aを使って取得したuserNameを設定
+                userid: userID,
                 isMyLike: isMyLike, // 自分のIDがlikesに含まれているかを設定
                 likes: likes
             };
         }));
 
-        return res.json(modifiedPosts);
+        return res.json( modifiedPosts );
     } catch (error) {
         console.error("Error home timeline", error);
         return res.status(500).json({ message: "TimeLineの取得中にエラーが発生しました。" });
