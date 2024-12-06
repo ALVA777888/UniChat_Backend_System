@@ -1,6 +1,4 @@
-const {UserPost} = require("../models/user");
-const {UserAccount} = require('../models/user');
-
+const { UserPost, UserReply, UserAccount } = require("../models/user");
 
 //Post機能、有効なJWTを保持している人のみ投稿できる。現状はユーザーを正確に識別する機能を実装しているわけではない
 const createPost = async(req,res) =>{
@@ -33,17 +31,17 @@ const createReply = async(req,res) =>{
    
     const userObjectId = req.userObjectId;
     const posttext = req.body.posttext;
-    const postId= req.body.postId;
+    const originalPostId= req.body.postId;
 
     try {
         if (posttext === "") {
             return res.status(400).json({ message: "テキストボックスが空白です" });
         }
-        const newReply = new UserPost({
+        const newReply = new UserReply({
             userObjectId,
             posttext,
             posttime: Date.now(),
-            replyTo: postId,
+            originalPostId,
             statuscode: "reply"
         });
 
@@ -51,12 +49,7 @@ const createReply = async(req,res) =>{
 
         
         await newReply.save();
-
-        await UserPost.findByIdAndUpdate(postId,{
-            $push: { replies: newReply._id },
-        });
-
-        return res.json({ userObjectId: userObjectId, message: "投稿完了", newReply });
+        return res.json({ userObjectId, message: "投稿完了", newReply });
     } catch (error) {
         console.error(error);
 

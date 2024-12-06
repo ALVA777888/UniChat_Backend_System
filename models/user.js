@@ -74,15 +74,33 @@ const UserPostSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "UserPost",
     }],
-    replies: [{ //配列
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "UserPost",
-    }],
-    replyTo: [{ //リプライ先ID
+    statuscode: {//投稿内容の追加情報を保存する。例えば、制限が設けられた投稿など
+        type: String,
+        required: true,
+        trim: true,
+    }
+});
+
+const UserReplySchema = new mongoose.Schema({
+    userObjectId:{ //投稿したユーザーのID
+        type: String,
+        trim: false,
+    },
+    posttext:{
+        type: String,
+        trim: false,
+        required: true,
+    },
+    posttime:{
+        type: Date,
+        required: true,
+        trim: false,
+    },
+    originalPostId: { //リプライ先ID
         type: mongoose.Schema.Types.ObjectId,
         ref: "UserPost",
         default: null,
-    }],
+    },
     statuscode: {//投稿内容の追加情報を保存する。例えば、制限が設けられた投稿など
         type: String,
         required: true,
@@ -108,5 +126,6 @@ const InvalidTokenSchema = new mongoose.Schema({
 
 const UserAccount = mongoose.model("UserAccount", UserAccountSchema);
 const UserPost = mongoose.model("UserPost", UserPostSchema);
+const UserReply = mongoose.model("UserReply", UserReplySchema);
 const InvalidToken = mongoose.model("InvalidToken", InvalidTokenSchema);
-module.exports = { UserAccount,UserPost,InvalidToken};
+module.exports = { UserAccount,UserPost,UserReply,InvalidToken};
