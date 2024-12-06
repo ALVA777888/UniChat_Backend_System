@@ -28,6 +28,9 @@ const UserAccountSchema = new mongoose.Schema({
         // required: true,
         trim: true,
     },
+    userBio:{
+        type: String,
+    },
     statuscode:{//ユーザーの追加情報を保存する。例えばBANであったりなど
         type: String,//TODO:文字列じゃなくて数列に変更したい
         required: true,
@@ -44,7 +47,20 @@ const UserAccountSchema = new mongoose.Schema({
     groups:[{
         groupId: String,
         isApproved: Boolean,
-    }]
+    }],
+
+});
+
+const TempUserSchema = new mongoose.Schema({
+    mail:{
+        type: String,
+    },
+    verificationCode:{
+        type: String,
+    },
+    result:{
+        type: Boolean,
+    }
 });
 
 const UserPostSchema = new mongoose.Schema({
@@ -52,7 +68,15 @@ const UserPostSchema = new mongoose.Schema({
         type: String,
         trim: false,
     },
+    userName:{ //投稿したユーザーの表示名前
+        type: String,
+        trim: false,
+    },
     posttext:{
+        type: String,
+        trim: false,
+    },
+    postfile:{
         type: String,
         trim: false,
     },
@@ -123,9 +147,28 @@ const InvalidTokenSchema = new mongoose.Schema({
 
 })
 
+//有効なトークンを保存するためのスキーマ
+//導入予定の機能だが、現在は使わない
+const ValidTokenSchema = new mongoose.Schema({
+    userObjectId:{
+        type: String,
+        required: true,
+        trim: false,
+    },
+    valid_tokens:{
+        type: [String],
+        required: true,
+        trim: false,
+    },
+
+})
+
 
 const UserAccount = mongoose.model("UserAccount", UserAccountSchema);
 const UserPost = mongoose.model("UserPost", UserPostSchema);
 const UserReply = mongoose.model("UserReply", UserReplySchema);
 const InvalidToken = mongoose.model("InvalidToken", InvalidTokenSchema);
-module.exports = { UserAccount,UserPost,UserReply,InvalidToken};
+
+const ValidToken = mongoose.model("ValidToken", ValidTokenSchema);
+const TempUser = mongoose.model("TempUser", TempUserSchema);
+module.exports = { UserAccount,TempUser,UserPost,UserReply,InvalidToken, ValidToken };
