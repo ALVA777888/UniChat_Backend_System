@@ -10,7 +10,7 @@ const UserAccountSchema = new mongoose.Schema({
     },
     username:{
         type: String,
-        required: true,
+        // required: true,
         trim: true,
     },
     mail:{//学校用のメールアドレス
@@ -25,7 +25,7 @@ const UserAccountSchema = new mongoose.Schema({
     },
     CollegeName:{
         type: String,
-        required: true,
+        // required: true,
         trim: true,
     },
     userBio:{
@@ -96,8 +96,35 @@ const UserPostSchema = new mongoose.Schema({
     }],
     likes: [{ //配列[いいねをしたユーザーIDの]
         type: mongoose.Schema.Types.ObjectId,
-        ref: "UserAccount",
+        ref: "UserPost",
     }],
+    statuscode: {//投稿内容の追加情報を保存する。例えば、制限が設けられた投稿など
+        type: String,
+        required: true,
+        trim: true,
+    }
+});
+
+const UserReplySchema = new mongoose.Schema({
+    userObjectId:{ //投稿したユーザーのID
+        type: String,
+        trim: false,
+    },
+    posttext:{
+        type: String,
+        trim: false,
+        required: true,
+    },
+    posttime:{
+        type: Date,
+        required: true,
+        trim: false,
+    },
+    originalPostId: { //リプライ先ID
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "UserPost",
+        default: null,
+    },
     statuscode: {//投稿内容の追加情報を保存する。例えば、制限が設けられた投稿など
         type: String,
         required: true,
@@ -139,7 +166,9 @@ const ValidTokenSchema = new mongoose.Schema({
 
 const UserAccount = mongoose.model("UserAccount", UserAccountSchema);
 const UserPost = mongoose.model("UserPost", UserPostSchema);
+const UserReply = mongoose.model("UserReply", UserReplySchema);
 const InvalidToken = mongoose.model("InvalidToken", InvalidTokenSchema);
+
 const ValidToken = mongoose.model("ValidToken", ValidTokenSchema);
 const TempUser = mongoose.model("TempUser", TempUserSchema);
-module.exports = { UserAccount,TempUser,UserPost,InvalidToken, ValidToken };
+module.exports = { UserAccount,TempUser,UserPost,UserReply,InvalidToken, ValidToken };

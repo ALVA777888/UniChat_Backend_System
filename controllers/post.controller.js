@@ -1,7 +1,6 @@
 const {UserPost} = require("../models/user");
-const {UserAccount} = require('../models/user');
+const { UserPost, UserReply, UserAccount } = require("../models/user");
 const { getUserName, getUserID } = require("../utils/accountHelper");
-
 
 //Post機能、有効なJWTを保持している人のみ投稿できる。現状はユーザーを正確に識別する機能を実装しているわけではない
 const createPost = async(req,res) =>{
@@ -25,6 +24,36 @@ const createPost = async(req,res) =>{
 
         await newPost.save();
         return res.json({ userObjectId: userObjectId, message: "投稿完了", newPost });
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({ message: "サーバー側で何かしらのエラーが発生しました" });
+    }
+};
+
+const createReply = async(req,res) =>{
+   
+    const userObjectId = req.userObjectId;
+    const posttext = req.body.posttext;
+    const originalPostId= req.body.postId;
+
+    try {
+        if (posttext === "") {
+            return res.status(400).json({ message: "テキストボックスが空白です" });
+        }
+        const newReply = new UserReply({
+            userObjectId,
+            posttext,
+            posttime: Date.now(),
+            originalPostId,
+            statuscode: "reply"
+        });
+
+        console.log(posttext);
+
+        
+        await newReply.save();
+        return res.json({ userObjectId, message: "投稿完了", newReply });
     } catch (error) {
         console.error(error);
 
@@ -120,9 +149,8 @@ const likePost = async (req, res) => {
     }
 };
 
-
 //ログインした対象userのpostのみ閲覧
-const getUserPost = async (req, res) => {
+const getMyPost = async (req, res) => {
     try {
         const userObjectId = req.userObjectId; //JWTからuseridを取得
         //特定のpostを取得、日時で降順にソート
@@ -135,7 +163,32 @@ const getUserPost = async (req, res) => {
     }
 };
 
-// 全post閲覧（認証必要）
+//フォローしたuserのpostのみ閲覧
+const getFollowingsPost = async (req, res) => {
+    try {
+        const userObjectId = req.userObjectId;
+        
+        const user = await UserAccount.findById(userObjectId);
+        if (!user) {
+            return res.status(404).json({ message: "ユーザーが見つかりません" });
+        }
+
+        const followingUserIds = user.following;
+
+        //特定のpostを取得、日時で降順にソート
+        const posts = await UserPost.find({ userObjectId: { $in: followingUserIds } })
+        .sort({ posttime: -1 })
+        .limit(10);
+        
+        return res.json(posts);
+    } catch (error) {
+        console.error("Error home timeline", error);
+        return res.status(500).json({ message: "TimeLineの取得中にエラーが発生しました。"});
+    }
+};
+
+//全post閲覧（認証必要）
+
 const getAllPost = async (req, res) => {
     try {
         const posts = await UserPost.find().sort({ posttime: -1 });
@@ -179,4 +232,4 @@ const getRecent = async (req, res) => {
 
 
 
-module.exports = {createPost,repost,likePost,getUserPost,getAllPost,getRecent};
+module.exports = {createPost,createReply,repost,likePost,getMyPost,getFollowingsPost,getAllPost,getRecent};
