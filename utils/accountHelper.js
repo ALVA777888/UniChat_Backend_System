@@ -4,11 +4,11 @@ const getUserID = async (userObjectId, res) => {
     try {
         const user = await UserAccount.findOne({ _id:userObjectId });
         if (!user) {
-            return res.status(400).json({
-                message: "ユーザーが見つかりませんでした"
-            });
+            return "Unknown_User";
         }
+        console.log(user.userid);
         return user.userid;
+        
 
     } catch (err) {
         console.log(err);
@@ -17,6 +17,25 @@ const getUserID = async (userObjectId, res) => {
         });
     }
 }
+
+const getUserName = async (userObjectId, res) => {
+    try {
+        const user = await UserAccount.findOne({ _id:userObjectId });
+        if (!user) {
+            return "退会したユーザー";
+        }
+        console.log(user.username);
+        return user.username;
+        
+
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            message: "ユーザーの取得に失敗しました",
+        });
+    }
+}
+
 
 // ユーザーのuserObjectIdを元にユーザー名を取得しJson形式で返す
 const getUserMap = async (userObjectIds) => {
@@ -31,4 +50,4 @@ const getUserMap = async (userObjectIds) => {
 
 
 
-module.exports = { getUserID, getUserMap };
+module.exports = { getUserID, getUserMap, getUserName };

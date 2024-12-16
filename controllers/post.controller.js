@@ -1,10 +1,13 @@
+const {UserPost} = require("../models/user");
 const { UserPost, UserReply, UserAccount } = require("../models/user");
+const { getUserName, getUserID } = require("../utils/accountHelper");
 
 //Post機能、有効なJWTを保持している人のみ投稿できる。現状はユーザーを正確に識別する機能を実装しているわけではない
 const createPost = async(req,res) =>{
    
     const userObjectId = req.userObjectId;
     const Posttext = req.body.posttext;
+    const postfile = req.body.postfile;
 
     try {
         if (Posttext === "") {
@@ -13,6 +16,7 @@ const createPost = async(req,res) =>{
         const newPost = new UserPost({
             userObjectId,
             posttext: Posttext,
+            postfile: postfile,
             posttime: Date.now(),
             statuscode: "0000"
         });
@@ -126,13 +130,19 @@ const likePost = async (req, res) => {
         if (existingLike) {
             originalPost.likes = originalPost.likes.filter(like => !like.equals(userIdFromDB));
             await originalPost.save();
-            return res.json({ message: "いいねを解除しました" });
+            return res.json({ 
+                message: "いいねを解除しました",
+                status: false
+            });
         }
 
         originalPost.likes.push(userIdFromDB);
         await originalPost.save();
 
-        return res.json({ message: "いいねしました" });
+        return res.json({ 
+            message: "いいねしました",
+            status: true
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "サーバー側で何かしらのエラーが発生しました" });
@@ -178,15 +188,33 @@ const getFollowingsPost = async (req, res) => {
 };
 
 //全post閲覧（認証必要）
+
 const getAllPost = async (req, res) => {
     try {
         const posts = await UserPost.find().sort({ posttime: -1 });
-        return res.json(posts);
-     } catch (error) {
+        const userObjectId = req.userObjectId;
+        // 各投稿に対してuserObjectIdを関数Aに渡しuserNameを設定
+        const modifiedPosts = await Promise.all(posts.map(async (post) => {
+            const userName = await getUserName(post.userObjectId);
+            const userID = await getUserID(post.userObjectId);
+            const isMyLike = post.likes.includes(userObjectId); // 自分のIDがlikesに含まれているかをチェック
+            const likes = post.likes.length;
+            return {
+                ...post._doc, // Mongooseドキュメントを普通のオブジェクトに変換
+                userName: userName, // 関数Aを使って取得したuserNameを設定
+                userid: userID,
+                isMyLike: isMyLike, // 自分のIDがlikesに含まれているかを設定
+                likes: likes
+            };
+        }));
+
+        return res.json( modifiedPosts );
+    } catch (error) {
         console.error("Error home timeline", error);
-        return res.status(500).json({ message: "TimeLineの取得中にエラーが発生しました。"});
-     }
+        return res.status(500).json({ message: "TimeLineの取得中にエラーが発生しました。" });
+    }
 };
+
 
 //最新投稿を取得(デバッグ)
 const getRecent = async (req, res) => {
