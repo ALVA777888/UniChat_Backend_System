@@ -25,6 +25,7 @@ const addFollow = async (req, res) => {
         const alreadyFollowing = targetUser.following.includes(userObjectId.toString());
 
         if (alreadyFollowing) {
+            // ObjectId型をStringにして比較
             targetUser.following = targetUser.following.filter(id => id.toString() !== userObjectId.toString());
             user.followers = user.followers.filter(id => id.toString() !== targetObjectId.toString());
 
