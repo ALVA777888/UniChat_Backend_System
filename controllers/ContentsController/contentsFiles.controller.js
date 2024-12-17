@@ -18,6 +18,7 @@ const uploadFiles = async (req, res) => {
             filename: req.file.filename,
             url: `http://localhost:3000/contents/files/${req.userObjectId}/${req.file.filename}/?timestamp=${timestamp}`
         });
+        console.log(req.file.filename);
     });
 };
 
