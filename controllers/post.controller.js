@@ -7,7 +7,12 @@ const createPost = async(req,res) =>{
    
     const userObjectId = req.userObjectId;
     const Posttext = req.body.posttext;
-    const postfile = req.body.postfile;
+    let postfile = req.body.postfile;
+
+    // postfileが空文字列や空の値の場合は削除
+    if (!postfile || postfile === "") {
+        postfile = undefined;
+    }
 
     try {
         if (Posttext === "") {
@@ -27,7 +32,7 @@ const createPost = async(req,res) =>{
     } catch (error) {
         console.error(error);
 
-        return res.status(500).json({ message: "サーバー側で何かしらのエラーが発生しました" });
+        return res.status(500).json({ message: "投稿に失敗しました。再度お試しください" });
     }
 };
 

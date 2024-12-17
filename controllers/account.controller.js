@@ -3,6 +3,30 @@ const bcrypt = require("bcrypt");
 const { validateAlphanumeric } = require('../utils/utils');
 
 
+const getAccountProfile = async (req, res) => {
+    const userObjectId = req.params.userObjectId;
+    try {
+        const user = await UserAccount.findOne({ _id: userObjectId });
+        if (!user) {
+            return res.status(400).json({
+                message: "ユーザーが見つかりませんでした"
+            });
+        }
+        return res.status(200).json({
+            collegeName: user.collegeName,
+            userid: user.userid,
+            username: user.username,
+            userBio: user.userBio
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            message: "プロフィールの取得に失敗しました"
+        });
+    }
+}
+
 const changePassword = async (req, res) => {
     const { password, newPassword } = req.body;
     const userObjectId = req.userObjectId;
@@ -98,4 +122,4 @@ const changeAccountProfile = async (req, res) => {
     }
 }
 
-module.exports = { changePassword, changeAccountProfile };
+module.exports = { changePassword, changeAccountProfile, getAccountProfile };
