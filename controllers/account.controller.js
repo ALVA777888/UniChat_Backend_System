@@ -1,12 +1,26 @@
 const { UserAccount } = require('../models/user');
 const bcrypt = require("bcrypt");
 const { validateAlphanumeric } = require('../utils/utils');
+const { FollowService } = require('../controllers/follow/followList.controller');
+const { is } = require('express/lib/request');
+
+const getFollowCount = async (userObjectId) => {
+    try {
+        const followService = new FollowService(userObjectId);
+        const followCounts = await followService.getFollowCounts();
+
+        return followCounts;
+    } catch (error) {
+        console.error(`フォローデータの取得中にエラーが発生しました。`, error);
+    }
+};
 
 
 const getAccountProfile = async (req, res) => {
     const userObjectId = req.params.userObjectId;
     try {
         const user = await UserAccount.findOne({ _id: userObjectId });
+        const countFollow = await getFollowCount(userObjectId);
         if (!user) {
             return res.status(400).json({
                 message: "ユーザーが見つかりませんでした"
@@ -16,7 +30,9 @@ const getAccountProfile = async (req, res) => {
             collegeName: user.collegeName,
             userid: user.userid,
             username: user.username,
-            userBio: user.userBio
+            userBio: user.userBio,
+            countFollow: countFollow,
+            // isFollowing: ,
         });
     }
     catch (err) {
