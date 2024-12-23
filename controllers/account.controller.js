@@ -14,13 +14,25 @@ const getFollowCount = async (userObjectId) => {
         console.error(`フォローデータの取得中にエラーが発生しました。`, error);
     }
 };
+const getIsFollowing = async (userObjectId, targetUserId) => {
+    try{
+        const followService = new FollowService(userObjectId);
+        const isFollowing = await followService.isFollowing(targetUserId);
+        
+        return isFollowing;
+    } catch (error) {
+        console.error(`フォローデータの取得中にエラーが発生しました。`, error);
+    }
+
+};
 
 
 const getAccountProfile = async (req, res) => {
-    const userObjectId = req.params.userObjectId;
+    const targetObjectId = req.params.targetObjectId;
     try {
-        const user = await UserAccount.findOne({ _id: userObjectId });
-        const countFollow = await getFollowCount(userObjectId);
+        const user = await UserAccount.findOne({ _id: targetObjectId });
+        const countFollow = await getFollowCount(targetObjectId);
+        const isFollowing = await getIsFollowing(req.userObjectId, targetObjectId);
         if (!user) {
             return res.status(400).json({
                 message: "ユーザーが見つかりませんでした"
@@ -32,7 +44,7 @@ const getAccountProfile = async (req, res) => {
             username: user.username,
             userBio: user.userBio,
             countFollow: countFollow,
-            // isFollowing: ,
+            isFollowing: isFollowing,
         });
     }
     catch (err) {

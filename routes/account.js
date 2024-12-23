@@ -5,6 +5,6 @@ const checkJWT = require('../middleware/checkJWT');
 router.post("/changeprofile", checkJWT, changeAccountProfile);
 router.post("/changepassword", checkJWT, changePassword);
 
-router.get("/getprofile/:userObjectId", checkJWT, getAccountProfile);
+router.get("/getprofile/:targetObjectId", checkJWT, getAccountProfile);
 
 module.exports = router;
