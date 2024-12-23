@@ -1,7 +1,59 @@
 const { UserAccount } = require('../models/user');
 const bcrypt = require("bcrypt");
 const { validateAlphanumeric } = require('../utils/utils');
+const { FollowService } = require('../controllers/follow/followList.controller');
+const { is } = require('express/lib/request');
 
+const getFollowCount = async (userObjectId) => {
+    try {
+        const followService = new FollowService(userObjectId);
+        const followCounts = await followService.getFollowCounts();
+
+        return followCounts;
+    } catch (error) {
+        console.error(`フォローデータの取得中にエラーが発生しました。`, error);
+    }
+};
+const getIsFollowing = async (userObjectId, targetUserId) => {
+    try{
+        const followService = new FollowService(userObjectId);
+        const isFollowing = await followService.isFollowing(targetUserId);
+        
+        return isFollowing;
+    } catch (error) {
+        console.error(`フォローデータの取得中にエラーが発生しました。`, error);
+    }
+
+};
+
+
+const getAccountProfile = async (req, res) => {
+    const targetObjectId = req.params.targetObjectId;
+    try {
+        const user = await UserAccount.findOne({ _id: targetObjectId });
+        const countFollow = await getFollowCount(targetObjectId);
+        const isFollowing = await getIsFollowing(req.userObjectId, targetObjectId);
+        if (!user) {
+            return res.status(400).json({
+                message: "ユーザーが見つかりませんでした"
+            });
+        }
+        return res.status(200).json({
+            collegeName: user.collegeName,
+            userid: user.userid,
+            username: user.username,
+            userBio: user.userBio,
+            countFollow: countFollow,
+            isFollowing: isFollowing,
+        });
+    }
+    catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            message: "プロフィールの取得に失敗しました"
+        });
+    }
+}
 
 const changePassword = async (req, res) => {
     const { password, newPassword } = req.body;
@@ -98,4 +150,4 @@ const changeAccountProfile = async (req, res) => {
     }
 }
 
-module.exports = { changePassword, changeAccountProfile };
+module.exports = { changePassword, changeAccountProfile, getAccountProfile };

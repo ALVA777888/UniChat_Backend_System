@@ -31,6 +31,9 @@ const UserAccountSchema = new mongoose.Schema({
     userBio:{
         type: String,
     },
+    userIco:{
+        type: String,
+    },
     statuscode:{//ユーザーの追加情報を保存する。例えばBANであったりなど
         type: String,//TODO:文字列じゃなくて数列に変更したい
         required: true,

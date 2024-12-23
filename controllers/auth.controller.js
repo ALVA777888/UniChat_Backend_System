@@ -232,11 +232,12 @@ const login = async (req, res) => {
             config.jwt.secret,
             config.jwt.options
         );
-        
+
         //トークンを返す
         return res.json({
             token: token,
             myuserid: user._id,
+            username: user.username,
             message: "ログイン成功",
         });
     } catch (err) {

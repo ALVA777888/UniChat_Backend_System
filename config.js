@@ -8,7 +8,7 @@ module.exports = {
         secret: process.env.SECRETKEY,
         options:{
             algorithm: "HS256",
-            expiresIn: "1d"
+            expiresIn: "30d"
         },
     },
     database: {
