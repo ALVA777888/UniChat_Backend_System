@@ -1,5 +1,5 @@
 const { UserAccount } = require('../models/user');
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { validateAlphanumeric } = require('../utils/utils');
 const { FollowService } = require('../controllers/follow/followList.controller');
 const { is } = require('express/lib/request');

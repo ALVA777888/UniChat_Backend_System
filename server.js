@@ -21,11 +21,11 @@ const mongoose = require("mongoose");
 const PORT = 3000; //ローカルで使用するPORTを指定
 
 // CORS設定
-app.use(cors({
-    origin: 'https://ff-debug-service-frontend-free-ygxkweukma-uc.a.run.app', // FlutterFlowのデバッグ環境のURLを指定
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'x-auth-token']
-}));
+// app.use(cors({
+//     origin: 'https://ff-debug-service-frontend-free-ygxkweukma-uc.a.run.app', // FlutterFlowのデバッグ環境のURLを指定
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'x-auth-token']
+// }));
 
 mongoose.connect(config.database.url)
     .then(() => console.log("Database connected"))
